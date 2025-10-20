@@ -128,7 +128,7 @@
         font-size: 1.5em;
         font-weight: 600;
         margin-bottom: 5px;
-        margin-top: 5px;
+        margin-top: 0px;
         padding-bottom: 5px;
         text-align: center;
     }

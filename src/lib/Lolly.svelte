@@ -1,0 +1,113 @@
+<script>
+    export let aggregatedLocations, heightScale, colorScale, indy_locs;
+
+    const lineHeight = 70; // Height of the vertical line
+    const circleRadius = 3.5;
+
+    // Function to map score (1-5) to vertical position (0-lineHeight)
+    function getCircleY(score) {
+        return lineHeight - ((score - 1) / 4) * lineHeight; // Inverted scale so higher scores are at the top
+    }
+
+    // Calculate the length and coordinates for 45-degree lines
+    function getDiagonalLineCoords(score) {
+        const filledHeight = lineHeight - getCircleY(score); // Height of the filled portion
+        const offset = filledHeight / Math.sqrt(2); // Length for 45-degree line
+        return {
+            x: offset, // For 45 degrees, x and y offsets are equal
+            y: -offset,
+        };
+    }
+</script>
+
+{#each aggregatedLocations as d}
+    {#if d.x && d.y && d.meanScore != null}
+        <g
+            transform={`translate(${d.x + (["Yirol East", "Gogrial West"].includes(d.adm2) ? 20 : 0)},
+            ${d.y - lineHeight + (["Yirol East", "Gogrial West"].includes(d.adm2) ? -10 : 0)})`}
+        >
+            <!-- 45-degree lines (drawn first) -->
+            <!-- {#if d.meanScore > 1}
+                {@const diag = getDiagonalLineCoords(d.meanScore)}
+                <line
+                    x1="0"
+                    y1={lineHeight}
+                    x2={diag.x}
+                    y2={lineHeight + diag.y}
+                    stroke="gray"
+                    stroke-width="2"
+                    stroke-opacity="0.1"
+                />
+            {/if} -->
+            <!-- Base vertical line -->
+            <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2={lineHeight}
+                stroke="#a6a6a6"
+                stroke-width="2"
+                stroke-opacity="1"
+            />
+
+            <!-- Filled portion of the line -->
+            <line
+                x1="0"
+                y1={lineHeight}
+                x2="0"
+                y2={getCircleY(d.meanScore)}
+                stroke="black"
+                stroke-width="3"
+            />
+
+            <!-- Score indicator circle -->
+            <circle
+                cx="0"
+                cy={getCircleY(d.meanScore)}
+                r={circleRadius}
+                fill={colorScale(d.poc)}
+                stroke="black"
+                stroke-width="0.5"
+            >
+                <title>
+                    Score: {d.meanScore.toFixed(2)}
+                </title>
+            </circle>
+
+            <!-- Optional: Scale marks -->
+            <!-- <line
+                x1="-3"
+                y1="0"
+                x2="3"
+                y2="0"
+                stroke="black"
+                stroke-width="0.5"
+            /> -->
+            <line
+                x1="-10"
+                y1={lineHeight}
+                x2="10"
+                y2={lineHeight}
+                stroke="gray"
+                stroke-width="1"
+            />
+        </g>
+    {/if}
+{/each}
+{#each indy_locs as d}
+    <text
+        x={d[1][0].x -
+            2.5 +
+            (["Yirol East", "Gogrial West"].includes(d[0]) ? 10 : 0)}
+        y={d[1][0].y + (["Yirol East", "Gogrial West"].includes(d[0]) ? 0 : 10)}
+        text-anchor={["Yirol East", "Gogrial West"].includes(d[0])
+            ? "start"
+            : "middle"}
+        font-size="10"
+        font-weight="500"
+        font-family="Montserrat"
+        fill={d.env == "IDP Camp" ? "black" : "black"}
+    >
+        {d[0]}
+    </text>
+{/each}

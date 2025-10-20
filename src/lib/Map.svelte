@@ -15,10 +15,10 @@
     <!-- polygon -->
     <path
         d={pathGenerator(feature)}
-        stroke={feature.properties.ADMIN === "South Sudan" ? "white" : "white"}
+        stroke={feature.properties.ADMIN === "South Sudan" ? "gray" : "gray"}
         fill={feature.properties.ADMIN === "South Sudan"
-            ? "#a6a6a6"
-            : "#cccccc"}
+            ? "white"
+            : "#f2f2f2"}
     />
     <!-- label -->
     <!-- {#if feature.properties.ADMIN != "South Sudan"}

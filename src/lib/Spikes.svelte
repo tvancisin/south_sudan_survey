@@ -13,7 +13,7 @@
             d={angledSpike(heightScale(d.meanScore), 45)}
             transform={`translate(${d.x + (["Yirol East"].includes(d.adm2) ? 10 : 0)},${d.y - (["Yirol East"].includes(d.adm2) ? 10 : 0)})`}
             fill="gray"
-            fill-opacity="1"
+            fill-opacity="0.5"
         />
     {/if}
 {/each}
