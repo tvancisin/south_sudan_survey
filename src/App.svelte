@@ -9,6 +9,7 @@
   import Spikes from "./lib/Spikes.svelte";
   import Time from "./lib/Time.svelte";
   import Sorted from "./lib/Sorted.svelte";
+  import Bars from "./lib/Bars.svelte";
 
   let width,
     height,
@@ -188,7 +189,10 @@
       current_mean = "Sec_Buy_Now_N";
     } else if (which == "culture") {
       current_mean = "Sec_Cul_Now_N";
+    } else if (which == "overall") {
+      current_mean = "overall_sec_mean_score";
     }
+
     survey_data = filtered_data;
   }
 
@@ -203,12 +207,14 @@
     survey_data = default_survey_data;
     // heightScale.domain([4 / 3, 8 / 3]).range([10, 60, 120]);
 
-    heightScale.domain([1, 5]).range([2, 120]);
+    heightScale.domain([1, 3]).range([2, 80]);
     current_mean = "Sec_Gunshots_Now_N";
   }
 
+  let test;
   function handlePoliticsClick() {
-    let test = location_groups.flatMap(([adm2, pocGroups]) => {
+    current_mean = "test";
+    test = location_groups.flatMap(([adm2, pocGroups]) => {
       const n = pocGroups.length; // number of subgroups (POC, IDP, Other)
 
       return pocGroups.map(([poc, items], i) => {
@@ -244,8 +250,24 @@
           }),
         ).sort((a, b) => d3.descending(a.count, b.count));
 
-        // Top 3
-        const top3PartyVision = sortedVisionCounts.slice(0, 3);
+        // Define the four parties you care about (in desired order)
+        const partyOrder = [
+          "Sudan People’s Liberation Movement In Government (SPLM-IG)",
+          "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
+          "None of the parties",
+          "South Sudan Opposition Alliance (SSOA)",
+        ];
+        const targetParties = new Set(partyOrder);
+
+        // Filter to include only those parties
+        const filteredVisionCounts = sortedVisionCounts
+          .filter((d) => targetParties.has(d.Party_Vision))
+          // Sort according to the defined order
+          .sort(
+            (a, b) =>
+              partyOrder.indexOf(a.Party_Vision) -
+              partyOrder.indexOf(b.Party_Vision),
+          );
 
         return {
           adm2,
@@ -254,11 +276,27 @@
           x,
           y,
           meanScore,
-          top3PartyVision,
+          filteredVisionCounts,
         };
       });
     });
-    console.log(test);
+  }
+
+  let open = false;
+
+  const topics = [
+    { value: "overall", label: "Overall" },
+    { value: "road", label: "Roads" },
+    { value: "countryside", label: "Countryside" },
+    { value: "buy", label: "Shopping" },
+    { value: "neighbour", label: "Neighbour" },
+    { value: "culture", label: "Cultural Events" },
+  ];
+
+  function handleSelect(topic) {
+    selectedTopic = topic;
+    handleTopicClick(topic);
+    open = false;
   }
 </script>
 
@@ -278,21 +316,33 @@
     </select>
   </div>
 
-  <div class="topics_buttons">
-    <label for="topicSelect">Topic</label>
+  <div class="dropdown">
+    <div class="button">{"Safety"}</div>
+    <div class="menu">
+      {#each topics as t}
+        <button
+          style="font-family: 'Montserrat';"
+          on:click={() => handleSelect(t.value)}>{t.label}</button
+        >
+      {/each}
+    </div>
+  </div>
+
+  <!-- <div class="topics_buttons">
     <select
       id="topicSelect"
       bind:value={selectedTopic}
       on:change={() => handleTopicClick(selectedTopic)}
     >
-      <option value="" disabled>Select topic</option>
+      <option value="" disabled>Safety</option>
       <option value="road">Roads</option>
       <option value="countryside">Countryside</option>
       <option value="buy">Shopping</option>
       <option value="neighbour">Neighbour</option>
       <option value="culture">Cultural Events</option>
     </select>
-  </div>
+  </div> -->
+
   <button class="guns_button" on:click={handleGunsClick}>Gunshots</button>
   <button class="politics_button" on:click={handlePoliticsClick}
     >Politics</button
@@ -319,6 +369,8 @@
             {angledSpike}
             {indy_locs}
           />
+        {:else if current_mean == "test"}
+          <Bars {test} {indy_locs} />
         {:else}
           <Lolly
             {aggregatedLocations}
@@ -330,16 +382,6 @@
           />
         {/if}
       {/if}
-
-      <Sorted
-        {aggregatedLocations}
-        {colorScale}
-        {height}
-        {current_mean}
-        {heightScale}
-        {spike}
-        {angledSpike}
-      />
 
       <!-- {#if wavePeriods}
         <Time
@@ -353,6 +395,16 @@
         />
       {/if} -->
     </svg>
+    <Sorted
+      {aggregatedLocations}
+      {colorScale}
+      {height}
+      {width}
+      {current_mean}
+      {heightScale}
+      {spike}
+      {angledSpike}
+    />
   </div>
 </main>
 
@@ -366,8 +418,7 @@
     width: 100%;
     height: 100%;
   }
-  .environment_buttons,
-  .topics_buttons {
+  .environment_buttons {
     position: absolute;
     top: 5px;
     display: flex;
@@ -376,21 +427,15 @@
   }
 
   .environment_buttons {
-    left: 5px;
+    right: 5px;
   }
 
-  .topics_buttons {
-    left: 150px;
-  }
-
-  .environment_buttons label,
-  .topics_buttons label {
+  .environment_buttons label {
     font-size: 14px;
     margin-bottom: 2px;
   }
 
-  .environment_buttons select,
-  .topics_buttons select {
+  .environment_buttons select {
     width: 100%;
     padding: 6px 8px;
     border-radius: 4px;
@@ -400,9 +445,10 @@
   .guns_button {
     width: 90px;
     position: absolute;
-    top: 70px;
+    top: 45px;
     left: 5px;
     padding: 6px 12px;
+    font-family: "Montserrat";
     font-size: 14px;
     border-radius: 3px;
     cursor: pointer;
@@ -410,7 +456,8 @@
   .politics_button {
     width: 90px;
     position: absolute;
-    top: 110px;
+    font-family: "Montserrat";
+    top: 85px;
     left: 5px;
     padding: 6px 12px;
     font-size: 14px;
@@ -420,5 +467,57 @@
   label {
     font-family: "Montserrat";
     font-weight: 500;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 90px;
+  }
+
+  .button {
+    font-family: "Montserrat";
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 2px solid #000000;
+    text-align: center;
+  }
+
+  .button:hover {
+    background-color: #e0e0e0;
+  }
+
+  .menu {
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-top: 0px;
+    position: absolute;
+    width: 100px;
+    z-index: 10;
+    font-family: "Monteserrat";
+  }
+
+  .dropdown:hover .menu {
+    display: block;
+  }
+
+  .menu button {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    text-align: left;
+    border: none;
+    background: white;
+    cursor: pointer;
+  }
+
+  .menu button:hover {
+    background-color: #eee;
   }
 </style>

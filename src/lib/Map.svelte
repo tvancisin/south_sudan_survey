@@ -16,10 +16,9 @@
     <path
         d={pathGenerator(feature)}
         stroke={feature.properties.ADMIN === "South Sudan" ? "gray" : "gray"}
-        fill={feature.properties.ADMIN === "South Sudan"
-            ? "white"
-            : "#f2f2f2"}
+        fill={feature.properties.ADMIN === "South Sudan" ? "white" : "#f2f2f2"}
     />
+
     <!-- label -->
     <!-- {#if feature.properties.ADMIN != "South Sudan"}
         <text
@@ -34,3 +33,57 @@
         </text>
     {/if} -->
 {/each}
+<g
+    transform="translate(20, 400)"
+    font-family="Montserrat"
+    font-weight="500"
+    font-size="12"
+>
+    <g>
+        <rect
+            x="0"
+            y="0"
+            width="20"
+            height="14"
+            fill="white"
+            stroke="black"
+            stroke-width="0.5"
+            rx="2"
+        />
+        <text x="30" y="10" dominant-baseline="middle" fill="black">POC</text>
+    </g>
+
+    <g transform="translate(0, 20)">
+        <rect
+            x="0"
+            y="0"
+            width="20"
+            height="14"
+            fill="gray"
+            stroke="black"
+            stroke-width="0.5"
+            rx="2"
+        />
+        <text x="30" y="10" dominant-baseline="middle" fill="black">IDP</text>
+    </g>
+
+    <g transform="translate(0, 40)">
+        <rect
+            x="0"
+            y="0"
+            width="20"
+            height="14"
+            fill="black"
+            stroke="black"
+            stroke-width="0.5"
+            rx="2"
+        />
+        <text
+            x="30"
+            y="10"
+            dominant-baseline="middle"
+            fill="black"
+            font-family="Montserrat">Other</text
+        >
+    </g>
+</g>
