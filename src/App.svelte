@@ -25,6 +25,8 @@
     location_groups,
     axisGroup,
     isListVisible = false,
+    header = "Overall Safety Across South Sudan",
+    test,
     csv_path = ["./data/survey.csv"],
     geojson_path = [
       "./data/unique_prio_grids.json",
@@ -101,7 +103,7 @@
         const env = items[0].environment_type;
 
         // --- horizontal offset logic ---
-        const spacing = 9; // pixel spacing
+        const spacing = 10; // pixel spacing
         const xOffset = (i - (n - 1) / 2) * spacing;
         const x = coords?.[0] + xOffset;
         const y = coords?.[1]; // same vertical position
@@ -124,105 +126,12 @@
     });
 
     indy_locs = d3.groups(projected_locations, (d) => d.ADM2);
-  }
 
-  // projection
-  $: projection = d3
-    .geoMercator()
-    .center([30, 7.5]) // center on ssudan
-    .scale(width * 3.3)
-    .translate([width / 2, height / 2]);
-
-  // draw geojson polygons
-  $: pathGenerator = d3.geoPath().projection(projection);
-
-  // Height of spike
-  // let heightScale = d3
-  //   .scaleThreshold()
-  //   .domain([5 / 3, 10 / 3]) // thresholds dividing domain [0,5] into three parts
-  //   .range([120, 60, 10]); // output heights for each range
-
-  let heightScale = d3
-    .scaleLinear()
-    .domain([1, 5]) // linear scale from 0 to 5
-    .range([120, 2]); // heights from 120px (low values) to 10px (high values)
-
-  // Color scale (optional)
-  const colorScale = d3
-    .scaleOrdinal()
-    .domain(["POC", "IDP", "Other"]) // list all possible values
-    .range(["white", "gray", "black"]); // or any colors you like
-
-  function handleEnvClick(which) {
-    // heightScale.domain([5 / 3, 10 / 3]).range([120, 60, 10]);
-
-    heightScale.domain([1, 5]).range([120, 2]);
-
-    current_mean = "overall_sec_mean_score";
-    let filtered_data;
-    if (which == "poc") {
-      filtered_data = default_survey_data.filter((d) => d.poc == "POC");
-    } else if (which == "idp") {
-      filtered_data = default_survey_data.filter((d) => d.poc == "IDP");
-    } else if (which == "oth") {
-      filtered_data = default_survey_data.filter((d) => d.poc == "Other");
-    } else if (which == "poc_idp") {
-      filtered_data = default_survey_data.filter(
-        (d) => d.poc == "POC" || d.poc == "IDP",
-      );
-    } else {
-      filtered_data = default_survey_data;
-    }
-    survey_data = filtered_data;
-  }
-
-  function handleTopicClick(which) {
-    heightScale.domain([1, 5]).range([120, 2]);
-    let filtered_data = default_survey_data;
-    if (which == "road") {
-      current_mean = "Sec_Roads_Now_N";
-    } else if (which == "countryside") {
-      current_mean = "Sec_Countryside_Now_N";
-    } else if (which == "neighbour") {
-      current_mean = "Sec_Nbr_Now_N";
-    } else if (which == "buy") {
-      current_mean = "Sec_Buy_Now_N";
-    } else if (which == "culture") {
-      current_mean = "Sec_Cul_Now_N";
-    } else if (which == "overall") {
-      current_mean = "overall_sec_mean_score";
-    }
-
-    survey_data = filtered_data;
-  }
-
-  function handleWaveClick(wave) {
-    heightScale.domain([1, 5]).range([120, 2]);
-    const wav = wave.detail.wave;
-    let filtered_data = default_survey_data.filter((d) => d.Wave == wav);
-    survey_data = filtered_data;
-  }
-
-  function handleGunsClick() {
-    survey_data = default_survey_data;
-    // heightScale.domain([4 / 3, 8 / 3]).range([10, 60, 120]);
-
-    heightScale.domain([1, 3]).range([2, 80]);
-    current_mean = "Sec_Gunshots_Now_N";
-  }
-
-  let test;
-  function handlePoliticsClick() {
-    current_mean = "test";
+    //party politics data
     test = location_groups.flatMap(([adm2, pocGroups]) => {
       const n = pocGroups.length; // number of subgroups (POC, IDP, Other)
 
       return pocGroups.map(([poc, items], i) => {
-        const overall_scores = items
-          .map((d) => +d[current_mean])
-          .filter((v) => v && !isNaN(v));
-
-        const meanScore = d3.mean(overall_scores);
         const lat = +items[0].central_latitude;
         const lon = +items[0].central_longitude;
         const coords = projection([lon, lat]);
@@ -250,24 +159,43 @@
           }),
         ).sort((a, b) => d3.descending(a.count, b.count));
 
-        // Define the four parties you care about (in desired order)
+        // Define the main three
+        const mainParties = [
+          "Sudan People’s Liberation Movement In Government (SPLM-IG)",
+          "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
+          "None of the parties",
+        ];
+
+        // Separate them
+        const main = sortedVisionCounts.filter((d) =>
+          mainParties.includes(d.Party_Vision),
+        );
+
+        // Combine everything else into “Other parties”
+        const otherSum = d3.sum(
+          sortedVisionCounts
+            .filter((d) => !mainParties.includes(d.Party_Vision))
+            .map((d) => d.count),
+        );
+
+        // Add the “Other parties” entry
+        const filteredVisionCounts = [
+          ...main,
+          { Party_Vision: "Other parties", count: otherSum },
+        ];
+
+        // Optional: enforce consistent order
         const partyOrder = [
           "Sudan People’s Liberation Movement In Government (SPLM-IG)",
           "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
           "None of the parties",
-          "South Sudan Opposition Alliance (SSOA)",
+          "Other parties",
         ];
-        const targetParties = new Set(partyOrder);
-
-        // Filter to include only those parties
-        const filteredVisionCounts = sortedVisionCounts
-          .filter((d) => targetParties.has(d.Party_Vision))
-          // Sort according to the defined order
-          .sort(
-            (a, b) =>
-              partyOrder.indexOf(a.Party_Vision) -
-              partyOrder.indexOf(b.Party_Vision),
-          );
+        filteredVisionCounts.sort(
+          (a, b) =>
+            partyOrder.indexOf(a.Party_Vision) -
+            partyOrder.indexOf(b.Party_Vision),
+        );
 
         return {
           adm2,
@@ -275,11 +203,96 @@
           env,
           x,
           y,
-          meanScore,
           filteredVisionCounts,
         };
       });
     });
+  }
+
+  // projection
+  $: projection = d3
+    .geoMercator()
+    .center([30, 7.5]) // center on ssudan
+    .scale(width * 3)
+    .translate([width / 2, height / 2]);
+
+  // draw geojson polygons
+  $: pathGenerator = d3.geoPath().projection(projection);
+
+  let heightScale = d3
+    .scaleLinear()
+    .domain([1, 5]) // linear scale from 0 to 5
+    .range([120, 2]); // heights from 120px (low values) to 10px (high values)
+
+  // Color scale (optional)
+  const colorScale = d3
+    .scaleOrdinal()
+    .domain(["POC", "IDP", "Other"]) // list all possible values
+    .range(["white", "#a6a6a6", "black"]); // or any colors you like
+
+  function handleEnvClick(which) {
+    heightScale.domain([1, 5]).range([120, 2]);
+    current_mean = "overall_sec_mean_score";
+    let filtered_data;
+    if (which == "poc") {
+      filtered_data = default_survey_data.filter((d) => d.poc == "POC");
+    } else if (which == "idp") {
+      filtered_data = default_survey_data.filter((d) => d.poc == "IDP");
+    } else if (which == "oth") {
+      filtered_data = default_survey_data.filter((d) => d.poc == "Other");
+    } else if (which == "poc_idp") {
+      filtered_data = default_survey_data.filter(
+        (d) => d.poc == "POC" || d.poc == "IDP",
+      );
+    } else {
+      filtered_data = default_survey_data;
+    }
+    survey_data = filtered_data;
+  }
+
+  function handleTopicClick(which) {
+    heightScale.domain([1, 5]).range([120, 2]);
+    let filtered_data = default_survey_data;
+    if (which == "road") {
+      header = "Road Safety Across South Sudan";
+      current_mean = "Sec_Roads_Now_N";
+    } else if (which == "countryside") {
+      current_mean = "Sec_Countryside_Now_N";
+      header = "Countryside Safety Across South Sudan";
+    } else if (which == "neighbour") {
+      current_mean = "Sec_Nbr_Now_N";
+      header = "Neighbourhood Safety Across South Sudan";
+    } else if (which == "buy") {
+      current_mean = "Sec_Buy_Now_N";
+      header = "Shopping Safety Across South Sudan";
+    } else if (which == "culture") {
+      current_mean = "Sec_Cul_Now_N";
+      header = "Cultural Events Safety Across South Sudan";
+    } else if (which == "overall") {
+      current_mean = "overall_sec_mean_score";
+      header = "Overall Safety Across South Sudan";
+    }
+
+    survey_data = filtered_data;
+  }
+
+  function handleWaveClick(wave) {
+    heightScale.domain([1, 5]).range([120, 2]);
+    const wav = wave.detail.wave;
+    let filtered_data = default_survey_data.filter((d) => d.Wave == wav);
+    survey_data = filtered_data;
+  }
+
+  function handleGunsClick() {
+    survey_data = default_survey_data;
+    heightScale.domain([1, 3]).range([2, 80]);
+    current_mean = "Sec_Gunshots_Now_N";
+    header = "Gunshots Heard at Night Across South Sudan";
+  }
+
+  function handlePoliticsClick() {
+    current_mean = "test";
+    header = "Political Party Preferences Across South Sudan";
   }
 
   let open = false;
@@ -301,6 +314,7 @@
 </script>
 
 <main>
+  <h1>{header}</h1>
   <div class="environment_buttons">
     <label for="envSelect">Environment</label>
     <select
@@ -327,22 +341,6 @@
       {/each}
     </div>
   </div>
-
-  <!-- <div class="topics_buttons">
-    <select
-      id="topicSelect"
-      bind:value={selectedTopic}
-      on:change={() => handleTopicClick(selectedTopic)}
-    >
-      <option value="" disabled>Safety</option>
-      <option value="road">Roads</option>
-      <option value="countryside">Countryside</option>
-      <option value="buy">Shopping</option>
-      <option value="neighbour">Neighbour</option>
-      <option value="culture">Cultural Events</option>
-    </select>
-  </div> -->
-
   <button class="guns_button" on:click={handleGunsClick}>Gunshots</button>
   <button class="politics_button" on:click={handlePoliticsClick}
     >Politics</button
@@ -355,11 +353,18 @@
   <div class="map" bind:clientWidth={width} bind:clientHeight={height}>
     <svg {width} {height}>
       {#if polygon_data && geo_data}
-        <Map {polygon_data} {geo_data} {pathGenerator} />
+        <Map {polygon_data} {geo_data} {pathGenerator} {width} />
       {/if}
 
       {#if width && height && aggregatedLocations}
-        <!-- <Legend {heightScale} {margin} {height} {spike} /> -->
+        <Legend
+          {heightScale}
+          {margin}
+          {height}
+          {width}
+          {current_mean}
+          {spike}
+        />
         {#if current_mean == "Sec_Gunshots_Now_N"}
           <Spikes
             {aggregatedLocations}
@@ -382,21 +387,21 @@
           />
         {/if}
       {/if}
-
-      <!-- {#if wavePeriods}
-        <Time
-          {wavePeriods}
-          {timeScale}
-          {height}
-          {width}
-          {margin}
-          {axisGroup}
-          on:waveClick={handleWaveClick}
-        />
-      {/if} -->
     </svg>
+    {#if wavePeriods}
+      <Time
+        {wavePeriods}
+        {timeScale}
+        {height}
+        {width}
+        {margin}
+        {axisGroup}
+        on:waveClick={handleWaveClick}
+      />
+    {/if}
     <Sorted
       {aggregatedLocations}
+      {test}
       {colorScale}
       {height}
       {width}
@@ -413,6 +418,17 @@
     position: absolute;
     width: 100%;
     height: 100vh;
+  }
+  h1 {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Montserrat";
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
   }
   .map {
     width: 100%;

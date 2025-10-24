@@ -1,5 +1,5 @@
 <script>
-    export let polygon_data, geo_data, pathGenerator;
+    export let polygon_data, geo_data, width, pathGenerator;
 </script>
 
 {#each polygon_data as feature}
@@ -15,8 +15,8 @@
     <!-- polygon -->
     <path
         d={pathGenerator(feature)}
-        stroke={feature.properties.ADMIN === "South Sudan" ? "gray" : "gray"}
-        fill={feature.properties.ADMIN === "South Sudan" ? "white" : "#f2f2f2"}
+        stroke={feature.properties.ADMIN === "South Sudan" ? "#b3b3b3" : "#b3b3b3"}
+        fill={feature.properties.ADMIN === "South Sudan" ? "#f2f2f2" : "white"}
     />
 
     <!-- label -->
@@ -34,55 +34,68 @@
     {/if} -->
 {/each}
 <g
-    transform="translate(20, 400)"
+    transform="translate({width - 140}, 70)"
     font-family="Montserrat"
     font-weight="500"
     font-size="12"
 >
     <g>
         <rect
-            x="0"
+            x="100"
             y="0"
-            width="20"
-            height="14"
+            width="25"
+            height="20"
             fill="white"
             stroke="black"
-            stroke-width="0.5"
-            rx="2"
-        />
-        <text x="30" y="10" dominant-baseline="middle" fill="black">POC</text>
-    </g>
-
-    <g transform="translate(0, 20)">
-        <rect
-            x="0"
-            y="0"
-            width="20"
-            height="14"
-            fill="gray"
-            stroke="black"
-            stroke-width="0.5"
-            rx="2"
-        />
-        <text x="30" y="10" dominant-baseline="middle" fill="black">IDP</text>
-    </g>
-
-    <g transform="translate(0, 40)">
-        <rect
-            x="0"
-            y="0"
-            width="20"
-            height="14"
-            fill="black"
-            stroke="black"
-            stroke-width="0.5"
-            rx="2"
+            stroke-width="2"
+            rx="3"
         />
         <text
-            x="30"
+            x="60"
+            y="10"
+            dominant-baseline="middle"
+            font-weight="600"
+            fill="black">POC</text
+        >
+    </g>
+
+    <g transform="translate(0, 25)">
+        <rect
+            x="100"
+            y="0"
+            width="25"
+            height="20"
+            fill="gray"
+            stroke="black"
+            stroke-width="2"
+            rx="3"
+        />
+        <text
+            x="65"
+            y="10"
+            dominant-baseline="middle"
+            font-weight="600"
+            fill="black">IDP</text
+        >
+    </g>
+
+    <g transform="translate(0, 50)">
+        <rect
+            x="100"
+            y="0"
+            width="25"
+            height="20"
+            fill="black"
+            stroke="black"
+            stroke-width="2"
+            rx="3"
+        />
+        <text
+            x="50"
             y="10"
             dominant-baseline="middle"
             fill="black"
+            font-weight="600"
             font-family="Montserrat">Other</text
         >
     </g>

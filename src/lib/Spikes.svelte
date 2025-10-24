@@ -7,7 +7,7 @@
         indy_locs;
 </script>
 
-{#each aggregatedLocations as d}
+<!-- {#each aggregatedLocations as d}
     {#if d.x && d.y && d.meanScore != null}
         <path
             d={angledSpike(heightScale(d.meanScore), 45)}
@@ -16,7 +16,7 @@
             fill-opacity="0.5"
         />
     {/if}
-{/each}
+{/each} -->
 
 {#each aggregatedLocations as d}
     {#if d.x && d.y && d.meanScore != null}
@@ -41,7 +41,7 @@
         y={d[1][0].y + (["Yirol East"].includes(d[0]) ? 0 : 10)}
         text-anchor={["Yirol East"].includes(d[0]) ? "start" : "middle"}
         font-size="10"
-        font-weight="500"
+        font-weight="600"
         font-family="Montserrat"
         fill={d.env == "IDP Camp" ? "black" : "black"}
     >

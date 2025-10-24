@@ -2,7 +2,6 @@
     export let aggregatedLocations, heightScale, colorScale, indy_locs;
 
     const lineHeight = 70; // Height of the vertical line
-    const circleRadius = 3.5;
 
     // Function to map score (1-5) to vertical position (0-lineHeight)
     function getCircleY(score) {
@@ -26,63 +25,39 @@
             transform={`translate(${d.x + (["Yirol East", "Gogrial West"].includes(d.adm2) ? 20 : 0)},
             ${d.y - lineHeight + (["Yirol East", "Gogrial West"].includes(d.adm2) ? -10 : 0)})`}
         >
-            <!-- 45-degree lines (drawn first) -->
-            <!-- {#if d.meanScore > 1}
-                {@const diag = getDiagonalLineCoords(d.meanScore)}
-                <line
-                    x1="0"
-                    y1={lineHeight}
-                    x2={diag.x}
-                    y2={lineHeight + diag.y}
-                    stroke="gray"
-                    stroke-width="2"
-                    stroke-opacity="0.1"
-                />
-            {/if} -->
-            <!-- Base vertical line -->
-            <line
-                x1="0"
-                y1="0"
-                x2="0"
-                y2={lineHeight}
-                stroke="#a6a6a6"
-                stroke-width="2"
-                stroke-opacity="1"
+            <!-- Background bar -->
+            <rect
+                x="-3"
+                y="0"
+                width="4"
+                height={lineHeight}
+                fill="#a6a6a6"
+                opacity="0.8"
             />
 
-            <!-- Filled portion of the line -->
-            <line
-                x1="0"
-                y1={lineHeight}
-                x2="0"
-                y2={getCircleY(d.meanScore)}
-                stroke="black"
-                stroke-width="3"
+            <!-- Filled portion -->
+            <rect
+                x="-3"
+                y={getCircleY(d.meanScore)}
+                width="4"
+                height={lineHeight - getCircleY(d.meanScore)}
+                fill="black"
             />
 
             <!-- Score indicator circle -->
             <circle
-                cx="0"
+                cx="-1"
                 cy={getCircleY(d.meanScore)}
-                r={circleRadius}
+                r="5"
                 fill={colorScale(d.poc)}
                 stroke="black"
-                stroke-width="0.5"
+                stroke-width="1"
             >
                 <title>
                     Score: {d.meanScore.toFixed(2)}
                 </title>
             </circle>
 
-            <!-- Optional: Scale marks -->
-            <!-- <line
-                x1="-3"
-                y1="0"
-                x2="3"
-                y2="0"
-                stroke="black"
-                stroke-width="0.5"
-            /> -->
             <line
                 x1="-10"
                 y1={lineHeight}
@@ -104,7 +79,7 @@
             ? "start"
             : "middle"}
         font-size="10"
-        font-weight="500"
+        font-weight="600"
         font-family="Montserrat"
         fill={d.env == "IDP Camp" ? "black" : "black"}
     >
