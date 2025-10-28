@@ -24,7 +24,7 @@
     const maxCount = d3.max(
         test.flatMap((d) => d.filteredVisionCounts.map((p) => p.count)),
     );
-    const scale = d3.scaleLinear().domain([0, maxCount]).range([2, 20]); // bar width
+    const scale = d3.scaleLinear().domain([0, maxCount]).range([2, 40]); // bar width
 
     // Assign direction per POC type
     const direction = {
@@ -40,12 +40,12 @@
             transform={`translate(${
                 d[1][0].x -
                 2.5 +
-                (["Yirol East", "Gogrial West", "Bor South"].includes(d[0])
+                (["Yirol West", "Gogrial West", "Bor South"].includes(d[0])
                     ? 25
                     : 0)
             }, ${
                 d[1][0].y +
-                (["Yirol East", "Gogrial West"].includes(d[0]) ? 0 : 10) +
+                (["Gogrial West"].includes(d[0]) ? 0 : 10) +
                 (["Wau", "Juba"].includes(d[0]) ? 30 : 0)
             })`}
         >
@@ -86,7 +86,7 @@
     {/if}
 {/each}
 
-{#each aggregatedLocations as d}
+<!-- {#each aggregatedLocations as d}
     {#if d.x && d.y && d.meanScore != null && d.poc != "POC" && d.adm2 != "Yirol East"}
         <g
             transform={`translate(
@@ -106,16 +106,6 @@
     }
   )`}
         >
-            <!-- <rect
-                x="-5.5"
-                y="-7"
-                width="7"
-                height="7"
-                fill={colorScale(d.poc)}
-                opacity="1"
-                stroke="black"
-                stroke-width="0.5"
-            /> -->
             <rect
                 x="-6.5"
                 y="0"
@@ -124,7 +114,6 @@
                 fill="#cccccc"
                 opacity="1"
             />
-            <!-- Filled portion -->
             <rect
                 x="-5"
                 y={getCircleY(d.meanScore)}
@@ -144,7 +133,7 @@
             />
         </g>
     {/if}
-{/each}
+{/each} -->
 
 {#each test as d}
     {#if d.poc != "POC" && d.adm2 != "Yirol East"}
@@ -153,10 +142,10 @@
                 x={d.x +
                     (d.adm2 === "Yirol East"
                         ? 40
-                        : ["Gogrial West", "Bor South"].includes(d.adm2)
+                        : ["Gogrial West", "Bor South", "Yirol West"].includes(d.adm2)
                           ? 20
                           : 0) +
-                    (direction[d.poc] === 1 ? 5 : -scale(party.count) - 8)}
+                    (direction[d.poc] === 1 ? -5 : -scale(party.count))}
                 y={d.y -
                     16 -
                     i * 18 +

@@ -141,12 +141,19 @@
         targetParty = partyOptions[currentIndex];
     }
 
-    let xScale;
+    let xScale, xScaleElection;
     // x-scale to position bars evenly
     $: if (aggregatedLocations && sorted_width) {
         xScale = d3
             .scaleBand()
             .domain(aggregatedLocations.map((d, i) => i))
+            .range([0, sorted_width])
+            .padding(0.2);
+    }
+    $: if (elections && sorted_width) {
+        xScaleElection = d3
+            .scaleBand()
+            .domain(elections.map((d, i) => i))
             .range([0, sorted_width])
             .padding(0.2);
     }
@@ -206,34 +213,32 @@
             />
             {#each elections as d, i}
                 {#if d.x && d.y && d.meanScore != null}
-                    <g transform={`translate(${(i + 2) * 15}, 140)`}>
-                        <!-- <rect
-                            x="-0.5"
-                            y="-8"
-                            width="7"
-                            height="7"
-                            fill={colorScale(d.poc)}
-                            opacity="1"
-                            stroke="black"
-                            stroke-width="0.5"
-                        /> -->
-
+                    <g
+                        transform={`translate(${xScaleElection(i) + xScaleElection.bandwidth() / 2}, 140)`}
+                    >
                         <rect
-                            x="-6.5"
+                            x="0"
                             y="0"
-                            width="9"
+                            width="3"
                             height={lineHeight}
                             fill="#cccccc"
                             opacity="1"
                         />
-                        <!-- Filled portion -->
                         <rect
-                            x="-5"
+                            x="0"
                             y={getCircleY(d.meanScore)}
-                            width="6"
+                            width="3"
                             height={lineHeight - getCircleY(d.meanScore)}
                             fill={colorScale(d.poc)}
                             fill-opacity="1"
+                        />
+                        <circle
+                            cx="1.5"
+                            cy={getCircleY(d.meanScore)}
+                            r="4"
+                            fill={colorScale(d.poc)}
+                            fill-opacity="1"
+                            stroke="black"
                         />
 
                         <g transform="rotate(-45, 0, 0)">
@@ -300,21 +305,30 @@
                     >
                         <!-- Background bar -->
                         <rect
-                            x="-6.5"
+                            x="0"
                             y="0"
-                            width="9"
+                            width="3"
                             height={lineHeight}
                             fill="#cccccc"
                             opacity="1"
                         />
                         <!-- Filled portion -->
                         <rect
-                            x="-5"
+                            x="0"
                             y={getCircleY(d.meanScore)}
-                            width="6"
+                            width="3"
                             height={lineHeight - getCircleY(d.meanScore)}
+                            fill="black"
+                            fill-opacity="1"
+                        />
+                        <!-- Filled portion -->
+                        <circle
+                            cx="1.5"
+                            cy={getCircleY(d.meanScore)}
+                            r="4"
                             fill={colorScale(d.poc)}
                             fill-opacity="1"
+                            stroke="black"
                         />
 
                         <!-- Rotated label group -->

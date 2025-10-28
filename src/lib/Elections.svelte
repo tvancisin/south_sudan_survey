@@ -88,19 +88,27 @@
             /> -->
 
             <rect
-                x="-6.5"
+                x="0"
                 y="0"
-                width="9"
+                width="3"
                 height={lineHeight}
                 fill="#cccccc"
                 opacity="1"
             />
             <!-- Filled portion -->
             <rect
-                x="-5"
+                x="0"
                 y={getCircleY(d.meanScore)}
-                width="6"
+                width="3"
                 height={lineHeight - getCircleY(d.meanScore)}
+                fill="black"
+                fill-opacity="1"
+            />
+            <circle
+                cx="1.5"
+                cy={getCircleY(d.meanScore)}
+                r="4"
+                stroke="black"
                 fill={colorScale(d.poc)}
                 fill-opacity="1"
             />

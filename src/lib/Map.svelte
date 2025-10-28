@@ -15,7 +15,7 @@
     <path
         d={pathGenerator(feature)}
         stroke={feature.properties.ADMIN === "South Sudan" ? "#b3b3b3" : "#b3b3b3"}
-        fill={feature.properties.ADMIN === "South Sudan" ? "white" : "white"}
+        fill={feature.properties.ADMIN === "South Sudan" ? "#f2f2f2" : "white"}
     />
     {#each geo_data as feature}
         <path

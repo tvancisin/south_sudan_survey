@@ -86,32 +86,37 @@
     }
   )`}
         >
+            <line
+                x1="-10"
+                y1={lineHeight}
+                x2="10"
+                y2={lineHeight}
+                stroke="gray"
+                stroke-width="1"
+            />
             {#if current_mean == "Sec_Gunshots_Now_N"}
-                <!-- <rect
-                    x="-5.5"
-                    y="-7"
-                    width="7"
-                    height="7"
-                    fill={colorScale(d.poc)}
-                    opacity="1"
-                    stroke="black"
-                    stroke-width="0.5"
-                /> -->
-
                 <rect
-                    x="-6.5"
+                    x="0"
                     y="0"
-                    width="9"
+                    width="3"
                     height={lineHeight}
                     fill="#cccccc"
                     opacity="1"
                 />
                 <!-- Filled portion -->
                 <rect
-                    x="-5"
+                    x="0"
                     y={getCircleY(d.meanScore)}
-                    width="6"
+                    width="3"
                     height={lineHeight - getCircleY(d.meanScore)}
+                    fill="black"
+                    fill-opacity="1"
+                />
+                <circle
+                    cx="1.5"
+                    cy={getCircleY(d.meanScore)}
+                    r="4"
+                    stroke="black"
                     fill={colorScale(d.poc)}
                     fill-opacity="1"
                 />
@@ -131,30 +136,28 @@
                 </image> -->
             {:else}
                 <!-- Background bar -->
-                <!-- <rect
-                    x="-5.5"
-                    y="-7"
-                    width="7"
-                    height="7"
-                    fill={colorScale(d.poc)}
-                    opacity="1"
-                    stroke="black"
-                    stroke-width="0.5"
-                /> -->
                 <rect
-                    x="-6.5"
+                    x="0"
                     y="0"
-                    width="9"
+                    width="3"
                     height={lineHeight}
                     fill="#cccccc"
                     opacity="1"
                 />
                 <!-- Filled portion -->
                 <rect
-                    x="-5"
+                    x="0"
                     y={getCircleY(d.meanScore)}
-                    width="6"
+                    width="3"
                     height={lineHeight - getCircleY(d.meanScore)}
+                    fill="black"
+                    fill-opacity="1"
+                />
+                <circle
+                    cx="1.5"
+                    cy={getCircleY(d.meanScore)}
+                    r="4"
+                    stroke="black"
                     fill={colorScale(d.poc)}
                     fill-opacity="1"
                 />
@@ -175,14 +178,6 @@
                     <title>Score: {d.meanScore.toFixed(2)}</title>
                 </svg> -->
             {/if}
-            <line
-                x1="-10"
-                y1={lineHeight}
-                x2="10"
-                y2={lineHeight}
-                stroke="gray"
-                stroke-width="1"
-            />
         </g>
     {/if}
 {/each}
