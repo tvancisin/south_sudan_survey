@@ -10,6 +10,7 @@
   import Time from "./lib/Time.svelte";
   import Sorted from "./lib/Sorted.svelte";
   import Bars from "./lib/Bars.svelte";
+  import Elections from "./lib/Elections.svelte";
 
   let width,
     height,
@@ -20,18 +21,18 @@
     projected_locations,
     polygon_data = [],
     aggregatedLocations,
+    elections,
     wavePeriods,
     timeScale,
     location_groups,
+    bars = false,
+    elections_check = false,
     axisGroup,
     isListVisible = false,
     header = "Overall Safety Across South Sudan",
     test,
-    csv_path = ["./data/survey.csv"],
-    geojson_path = [
-      "./data/unique_prio_grids.json",
-      "./data/country_polygons.json",
-    ],
+    csv_path = ["./data/ssd_surveys.csv"],
+    geojson_path = ["./data/nile.json", "./data/country_polygons.json"],
     margin = { top: 30, bottom: 30, left: 30, right: 30 };
 
   // Bound values for dropdowns
@@ -119,6 +120,46 @@
     });
     aggregatedLocations.sort((a, b) => b.meanScore - a.meanScore);
 
+    const electionsMap = {
+      Soon: 3,
+      Delayed: 2,
+      Never: 1,
+    };
+
+    elections = location_groups.flatMap(([adm2, pocGroups]) => {
+      const n = pocGroups.length; // number of subgroups
+
+      return pocGroups.map(([poc, items], i) => {
+        // Map category to numeric values, ignore "Not Answered"
+        const numericScores = items
+          .map((d) => electionsMap[d.elections_held_category])
+          .filter((v) => v !== undefined && !isNaN(v));
+
+        const meanScore = d3.mean(numericScores);
+        const lat = +items[0].central_latitude;
+        const lon = +items[0].central_longitude;
+        const coords = projection([lon, lat]);
+        const env = items[0].environment_type;
+
+        // --- horizontal offset logic ---
+        const spacing = 10; // pixel spacing
+        const xOffset = (i - (n - 1) / 2) * spacing;
+        const x = coords?.[0] + xOffset;
+        const y = coords?.[1]; // same vertical position
+
+        return {
+          adm2,
+          poc,
+          env,
+          x,
+          y,
+          meanScore,
+        };
+      });
+    });
+
+    elections.sort((a, b) => b.meanScore - a.meanScore);
+
     // individual locations for labels
     projected_locations = survey_data.map((d) => {
       const coords = projection([+d.central_longitude, +d.central_latitude]);
@@ -126,7 +167,6 @@
     });
 
     indy_locs = d3.groups(projected_locations, (d) => d.ADM2);
-
     //party politics data
     test = location_groups.flatMap(([adm2, pocGroups]) => {
       const n = pocGroups.length; // number of subgroups (POC, IDP, Other)
@@ -209,12 +249,26 @@
     });
   }
 
-  // projection
-  $: projection = d3
-    .geoMercator()
-    .center([30, 7.5]) // center on ssudan
-    .scale(width * 3)
-    .translate([width / 2, height / 2]);
+  $: projection = (() => {
+    let scaleFactor;
+
+    if (width >= 1200) {
+      // large screens
+      scaleFactor = 3;
+    } else if (width >= 768) {
+      // medium screens
+      scaleFactor = 4; // adjust as needed
+    } else {
+      // small screens
+      scaleFactor = 6; // adjust as needed
+    }
+
+    return d3
+      .geoMercator()
+      .center([30, 8]) // center on South Sudan
+      .scale(width * scaleFactor)
+      .translate([width / 2, height / 2]);
+  })();
 
   // draw geojson polygons
   $: pathGenerator = d3.geoPath().projection(projection);
@@ -228,7 +282,7 @@
   const colorScale = d3
     .scaleOrdinal()
     .domain(["POC", "IDP", "Other"]) // list all possible values
-    .range(["white", "#a6a6a6", "black"]); // or any colors you like
+    .range(["white", "#808080", "black"]); // or any colors you like
 
   function handleEnvClick(which) {
     heightScale.domain([1, 5]).range([120, 2]);
@@ -251,6 +305,8 @@
   }
 
   function handleTopicClick(which) {
+    elections_check = false;
+    bars = false;
     heightScale.domain([1, 5]).range([120, 2]);
     let filtered_data = default_survey_data;
     if (which == "road") {
@@ -284,6 +340,8 @@
   }
 
   function handleGunsClick() {
+    elections_check = false;
+    bars = false;
     survey_data = default_survey_data;
     heightScale.domain([1, 3]).range([2, 80]);
     current_mean = "Sec_Gunshots_Now_N";
@@ -291,8 +349,15 @@
   }
 
   function handlePoliticsClick() {
-    current_mean = "test";
+    current_mean = "overall_sec_mean_score";
+    bars = true;
+    elections_check = false;
     header = "Political Party Preferences Across South Sudan";
+  }
+
+  function handleElectionsClick() {
+    bars = false;
+    elections_check = true;
   }
 
   let open = false;
@@ -345,6 +410,9 @@
   <button class="politics_button" on:click={handlePoliticsClick}
     >Politics</button
   >
+  <button class="elections_button" on:click={handleElectionsClick}
+    >Elections</button
+  >
   <!-- <button class="list_button" on:click={() => (isListVisible = !isListVisible)}>
     {isListVisible ? "Hide List" : "Show List"}
   </button> -->
@@ -364,31 +432,45 @@
           {width}
           {current_mean}
           {spike}
+          {bars}
+          {elections_check}
         />
-        {#if current_mean == "Sec_Gunshots_Now_N"}
-          <Spikes
+        {#if bars}
+          <Bars
+            {test}
+            {indy_locs}
+            {current_mean}
+            {aggregatedLocations}
+            {colorScale}
+          />
+        {:else if elections_check}
+          <Elections {elections} {colorScale} {indy_locs} />
+        {:else if current_mean == "Sec_Gunshots_Now_N"}
+          <!-- <Spikes
             {aggregatedLocations}
             {heightScale}
             {colorScale}
             {spike}
             {angledSpike}
             {indy_locs}
+          /> -->
+          <Lolly
+            {aggregatedLocations}
+            {current_mean}
+            {colorScale}
+            {indy_locs}
           />
-        {:else if current_mean == "test"}
-          <Bars {test} {indy_locs} />
         {:else}
           <Lolly
             {aggregatedLocations}
-            {heightScale}
+            {current_mean}
             {colorScale}
-            {spike}
-            {angledSpike}
             {indy_locs}
           />
         {/if}
       {/if}
     </svg>
-    {#if wavePeriods}
+    <!-- {#if wavePeriods}
       <Time
         {wavePeriods}
         {timeScale}
@@ -398,7 +480,7 @@
         {axisGroup}
         on:waveClick={handleWaveClick}
       />
-    {/if}
+    {/if} -->
     <Sorted
       {aggregatedLocations}
       {test}
@@ -407,6 +489,9 @@
       {width}
       {current_mean}
       {heightScale}
+      {bars}
+      {elections_check}
+      {elections}
       {spike}
       {angledSpike}
     />
@@ -441,16 +526,13 @@
     flex-direction: column;
     width: 140px;
   }
-
   .environment_buttons {
     right: 5px;
   }
-
   .environment_buttons label {
     font-size: 14px;
     margin-bottom: 2px;
   }
-
   .environment_buttons select {
     width: 100%;
     padding: 6px 8px;
@@ -459,6 +541,7 @@
     font-size: 14px;
   }
   .guns_button {
+    background-color: #f2f2f2;
     width: 90px;
     position: absolute;
     top: 45px;
@@ -470,6 +553,7 @@
     cursor: pointer;
   }
   .politics_button {
+    background-color: #f2f2f2;
     width: 90px;
     position: absolute;
     font-family: "Montserrat";
@@ -480,33 +564,41 @@
     border-radius: 3px;
     cursor: pointer;
   }
+  .elections_button {
+    background-color: #f2f2f2;
+    width: 90px;
+    position: absolute;
+    font-family: "Montserrat";
+    top: 125px;
+    left: 5px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
   label {
     font-family: "Montserrat";
     font-weight: 500;
   }
-
   .dropdown {
     position: absolute;
     top: 5px;
     left: 5px;
     width: 90px;
   }
-
   .button {
     font-family: "Montserrat";
     padding: 6px 12px;
     font-size: 14px;
     border-radius: 3px;
     cursor: pointer;
-    background-color: #f0f0f0;
     border: 2px solid #000000;
     text-align: center;
+    background-color: #f2f2f2;
   }
-
   .button:hover {
     background-color: #e0e0e0;
   }
-
   .menu {
     display: none;
     background-color: white;
@@ -518,11 +610,9 @@
     z-index: 10;
     font-family: "Monteserrat";
   }
-
   .dropdown:hover .menu {
     display: block;
   }
-
   .menu button {
     display: block;
     width: 100%;
@@ -532,7 +622,6 @@
     background: white;
     cursor: pointer;
   }
-
   .menu button:hover {
     background-color: #eee;
   }

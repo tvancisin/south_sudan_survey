@@ -1,13 +1,20 @@
 <script>
     import * as d3 from "d3";
-    export let heightScale, margin, height, width, current_mean, spike;
+    export let heightScale,
+        margin,
+        height,
+        width,
+        current_mean,
+        spike,
+        bars,
+        elections_check;
 
     const spikeLabels = [
         "Very Unsafe",
         "Neither Safe, Nor Unsafe",
         "Very Safe",
     ];
-    $: bars = [
+    $: bars_sample = [
         {
             adm2: "Malakal",
             poc: "Other",
@@ -73,92 +80,9 @@
     };
 </script>
 
-<!-- spike triangle -->
 <svg>
-    {#if current_mean === "Sec_Gunshots_Now_N"}
-        <path
-            d={spike(100)}
-            transform={`translate(${width - 20}, ${270})`}
-            fill="black"
-            stroke="black"
-            stroke-width="0.5"
-        />
-        <line
-            x1={width - 20}
-            y1="170"
-            x2={width - 40}
-            y2="170"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 80}
-            y={170}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="middle"
-        >
-            Every night
-        </text>
-        <path
-            d={spike(50)}
-            transform={`translate(${width - 30}, ${270})`}
-            fill="black"
-            stroke="black"
-            stroke-width="0.5"
-        />
-        <line
-            x1={width - 30}
-            y1="220"
-            x2={width - 60}
-            y2="220"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 80}
-            y={220}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="middle"
-        >
-            Often
-        </text>
-        <path
-            d={spike(10)}
-            transform={`translate(${width - 40}, ${270})`}
-            fill="black"
-            stroke="black"
-            stroke-width="0.5"
-        />
-        <line
-            x1={width - 40}
-            y1="260"
-            x2={width - 55}
-            y2="260"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 80}
-            y={260}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="middle"
-        >
-            Rarely
-        </text>
-    {:else if current_mean === "test"}
-        {#each bars as d}
+    {#if bars}
+        {#each bars_sample as d}
             {#each d.filteredVisionCounts as party, i}
                 <rect
                     x={d.x +
@@ -290,27 +214,171 @@
             stroke-dasharray="4 2"
             stroke-width="0.5"
         />
+    {:else if elections_check}
+        <rect
+            x={width - 30}
+            y="170"
+            width="6"
+            height="70"
+            fill="#a6a6a6"
+            opacity="0.3"
+        />
+        <rect
+            x={width - 30}
+            y={190}
+            width="6"
+            height="50"
+            fill="gray"
+            opacity="0.7"
+        />
+        <image
+            href="./el_gray.svg"
+            x={width - 37}
+            y={180}
+            width={22}
+            height={22}
+        >
+        </image>
+        <line
+            x1={width - 40}
+            y1="170"
+            x2={width - 55}
+            y2="170"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x={width - 60}
+            y={170}
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="end"
+        >
+            Soon
+        </text>
+
+        <line
+            x1={width - 40}
+            y1="240"
+            x2={width - 55}
+            y2="240"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x={width - 60}
+            y={240}
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="end"
+        >
+            Never
+        </text>
+    {:else if current_mean === "Sec_Gunshots_Now_N"}
+        <rect
+            x={width - 30}
+            y="170"
+            width="6"
+            height="70"
+            fill="#a6a6a6"
+            opacity="0.3"
+        />
+        <rect
+            x={width - 30}
+            y={190}
+            width="6"
+            height="50"
+            fill="gray"
+            opacity="0.7"
+        />
+        <image
+            href="./bullet_gray.svg"
+            x={width - 38}
+            y={180}
+            width={22}
+            height={22}
+        >
+        </image>
+        <line
+            x1={width - 40}
+            y1="170"
+            x2={width - 55}
+            y2="170"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x={width - 60}
+            y={170}
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="end"
+        >
+            Every Night
+        </text>
+
+        <line
+            x1={width - 40}
+            y1="240"
+            x2={width - 55}
+            y2="240"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x={width - 60}
+            y={240}
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="end"
+        >
+            Never
+        </text>
     {:else}
         <rect
             x={width - 30}
             y="170"
-            width="4"
+            width="6"
             height="70"
             fill="#a6a6a6"
-            opacity="0.8"
+            opacity="0.3"
         />
 
-        <rect x={width - 30} y={190} width="4" height="50" fill="black" />
+        <rect
+            x={width - 30}
+            y={190}
+            width="6"
+            height="50"
+            fill="gray"
+            opacity="0.7"
+        />
 
-        <circle
-            cx={width - 28}
-            cy={190}
-            r="5"
-            fill="black"
+        <svg
+            x={width - 38}
+            y={180}
+            width={22}
+            height={22}
+            viewBox="0 0 24 24"
+            fill="gray"
             stroke="black"
             stroke-width="1"
         >
-        </circle>
+            <path
+                d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"
+            />
+        </svg>
         <line
             x1={width - 40}
             y1="170"

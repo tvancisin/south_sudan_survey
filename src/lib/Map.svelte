@@ -11,13 +11,21 @@
             opacity="0.5"
         />
     {/each} -->
-
     <!-- polygon -->
     <path
         d={pathGenerator(feature)}
         stroke={feature.properties.ADMIN === "South Sudan" ? "#b3b3b3" : "#b3b3b3"}
-        fill={feature.properties.ADMIN === "South Sudan" ? "#f2f2f2" : "white"}
+        fill={feature.properties.ADMIN === "South Sudan" ? "white" : "white"}
     />
+    {#each geo_data as feature}
+        <path
+            d={pathGenerator(feature)}
+            stroke="steelblue"
+            stroke-width="3"
+            fill="none"
+            opacity="0.5"
+        />
+    {/each}
 
     <!-- label -->
     <!-- {#if feature.properties.ADMIN != "South Sudan"}

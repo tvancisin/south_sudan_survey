@@ -1,10 +1,5 @@
 <script>
-    export let aggregatedLocations,
-        heightScale,
-        colorScale,
-        spike,
-        angledSpike,
-        indy_locs;
+    export let aggregatedLocations, heightScale, colorScale, spike, indy_locs;
 </script>
 
 <!-- {#each aggregatedLocations as d}

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="187.64565mm"
+   height="187.78571mm"
+   viewBox="0 0 187.64565 187.78571"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm" /><defs
+     id="defs1"><clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath38"><rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:1.1263;stroke-linecap:square;stroke-dasharray:3.38333;stroke-opacity:1;paint-order:stroke markers fill"
+         id="rect39"
+         width="718.86005"
+         height="734.83472"
+         x="-2715.6934"
+         y="1721.2704" /></clipPath><clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath39"><rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:1.1263;stroke-linecap:square;stroke-dasharray:3.38333;stroke-opacity:1;paint-order:stroke markers fill"
+         id="rect40"
+         width="718.86005"
+         height="734.83472"
+         x="-2715.6934"
+         y="1721.2704" /></clipPath><clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath40"><rect
+         style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:0.0801123;stroke-linecap:square;stroke-dasharray:0.240652;stroke-opacity:1;paint-order:stroke markers fill"
+         id="rect41"
+         width="51.131615"
+         height="52.267872"
+         x="39.287144"
+         y="-1.1278766" /></clipPath></defs><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(718.52718,-459.61492)"><g
+       style="fill:#000000"
+       id="g24"
+       transform="matrix(3.7197807,0,0,3.7197807,-864.66676,459.61491)"
+       clip-path="url(#clipPath40)"><g
+         id="g5">
+	<g
+   id="g4-8">
+		<path
+   id="path1-5"
+   d="m 44.893126,36.438082 c 0.01078,0.0015 0.02154,0.0035 0.03232,0.0051 1.1e-5,-0.0017 -2e-5,-0.0034 0,-0.0051 z m 0.415662,0.04668 c 7.18e-4,0.0094 0.0023,0.01895 0.0036,0.02843 0.01037,0.0022 0.02076,0.004 0.03112,0.0063 z M 30.3626,37.814945 c -0.0078,0.01316 -0.01776,0.02876 -0.0099,0.02604 0.02651,-0.0091 0.02224,-0.01018 0.0404,-0.01706 -0.0099,-0.0034 -0.02026,-0.0062 -0.03052,-0.009 z" />
+		<path
+   d="M 58.771,47.288 H 48.428 l -1.065,3.195 H 75.39 L 74.258,47.288 H 61.642 L 89.218,19.714 c 0.686,-0.685 0.686,-1.793 0,-2.478 L 72.495,0.513 c -0.685,-0.684 -1.795,-0.684 -2.479,0 L 42.245,28.286 c -0.685,0.684 -0.685,1.793 0,2.477 z M 68.829,6.655 64.723,23.084 48.367,27.118 Z m -2.244,19.577 c 0.316,-0.077 0.598,-0.239 0.82,-0.462 0.221,-0.221 0.381,-0.5 0.459,-0.814 L 72.688,5.662 85.5,18.475 60.206,43.768 47.401,30.964 Z"
+   id="path2" />
+		
+		
+	</g>
+</g></g><path
+       style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:2.24903;stroke-linecap:square;stroke-dasharray:6.75595;stroke-opacity:1;paint-order:stroke markers fill"
+       d="m -2509.9322,2262.5055 c -48.8244,-48.8369 -88.3617,-89.1308 -87.8607,-89.542 0.5011,-0.4112 60.6663,-15.3955 133.7005,-33.2984 73.0342,-17.903 135.0379,-33.6844 137.7862,-35.0699 2.7482,-1.3856 6.5123,-4.1938 8.3647,-6.2407 2.0964,-2.3165 16.3424,-55.6159 37.7347,-141.1788 l 34.3668,-137.4573 88.9225,88.9225 88.9225,88.9225 -176.5827,176.8682 -176.5828,176.8682 z"
+       id="path37"
+       transform="scale(0.26458333)"
+       clip-path="url(#clipPath39)" /><path
+       style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:2.24903;stroke-linecap:square;stroke-dasharray:6.75595;stroke-opacity:1;paint-order:stroke markers fill"
+       d="m -2444.21,1977.2051 c 76.2817,-76.4274 139.0732,-138.5798 139.5366,-138.1164 0.4634,0.4634 -11.5733,50.5582 -26.7482,111.3218 l -27.5907,110.4792 -108.9506,26.6985 c -59.9228,14.6841 -110.2985,27.1208 -111.9459,27.6371 -1.6474,0.5162 59.4171,-61.5929 135.6988,-138.0202 z"
+       id="path38"
+       transform="scale(0.26458333)"
+       clip-path="url(#clipPath38)" /></g><style
+     type="text/css"
+     id="style1">
+<![CDATA[
+	.st0{fill:#000000;}
+]]>
+</style></svg>
