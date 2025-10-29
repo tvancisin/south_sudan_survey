@@ -20,6 +20,7 @@
     indy_locs,
     projected_locations,
     polygon_data = [],
+    disputed_data = [],
     aggregatedLocations,
     elections,
     wavePeriods,
@@ -27,12 +28,18 @@
     location_groups,
     bars = false,
     elections_check = false,
+    open = false,
+    current_location,
     axisGroup,
     isListVisible = false,
-    header = "Overall Safety Across South Sudan",
+    header = "Overall Safety",
     test,
     csv_path = ["./data/ssd_surveys.csv"],
-    geojson_path = ["./data/nile.json", "./data/country_polygons.json"],
+    geojson_path = [
+      "./data/nile.json",
+      "./data/country_polygons.json",
+      "./data/disputed.json",
+    ],
     margin = { top: 30, bottom: 30, left: 30, right: 30 };
 
   // Bound values for dropdowns
@@ -40,10 +47,14 @@
   let selectedTopic = "";
 
   let menuOpen = false;
+  let menuEnvOpen = false;
   let isMobile = false;
 
   function toggleMenu() {
     menuOpen = !menuOpen;
+  }
+  function toggleEnvMenu() {
+    menuEnvOpen = !menuEnvOpen;
   }
 
   // detect mobile / screen resize
@@ -52,9 +63,6 @@
   }
 
   onMount(() => {
-    // ---------------------
-    // Async data loading
-    // ---------------------
     (async () => {
       // load CSV
       const csv = await getCSV(csv_path);
@@ -79,11 +87,9 @@
       const geo = await getGeo(geojson_path);
       geo_data = geo[0].features;
       polygon_data = geo[1].features;
+      disputed_data = geo[2].features;
     })();
 
-    // ---------------------
-    // Responsive mobile detection
-    // ---------------------
     // fallback for normal window resizing
     updateScreenSize();
 
@@ -96,9 +102,6 @@
     handleMediaChange(mediaQuery); // initial check
     mediaQuery.addEventListener("change", handleMediaChange);
 
-    // ---------------------
-    // Cleanup on unmount
-    // ---------------------
     return () => {
       mediaQuery.removeEventListener("change", handleMediaChange);
     };
@@ -283,23 +286,26 @@
     });
   }
 
+  //change projection scaling based on screen size
   $: projection = (() => {
-    let scaleFactor;
-
+    let scaleFactor, y_center;
     if (width >= 1200) {
       // large screens
-      scaleFactor = 3;
+      scaleFactor = 2.5;
+      y_center = 7.5;
     } else if (width >= 768) {
       // medium screens
       scaleFactor = 3.5; // adjust as needed
+      y_center = 7.5;
     } else {
       // small screens
-      scaleFactor = 6; // adjust as needed
+      scaleFactor = 6.5; // adjust as needed
+      y_center = 6.2;
     }
 
     return d3
       .geoMercator()
-      .center([30, 7.5]) // center on South Sudan
+      .center([29.6, y_center]) // center on South Sudan
       .scale(width * scaleFactor)
       .translate([width / 2, height / 2]);
   })();
@@ -320,6 +326,7 @@
 
   function handleEnvClick(which) {
     heightScale.domain([1, 5]).range([120, 2]);
+    selectedEnv = which;
     current_mean = "overall_sec_mean_score";
     let filtered_data;
     if (which == "poc") {
@@ -339,28 +346,29 @@
   }
 
   function handleTopicClick(which) {
+    activeButton = "safety";
     elections_check = false;
     bars = false;
     heightScale.domain([1, 5]).range([120, 2]);
     let filtered_data = default_survey_data;
     if (which == "road") {
-      header = "Road Safety Across South Sudan";
+      header = "Road Safety";
       current_mean = "Sec_Roads_Now_N";
     } else if (which == "countryside") {
       current_mean = "Sec_Countryside_Now_N";
-      header = "Countryside Safety Across South Sudan";
+      header = "Countryside Safety";
     } else if (which == "neighbour") {
       current_mean = "Sec_Nbr_Now_N";
-      header = "Neighbourhood Safety Across South Sudan";
+      header = "Neighbourhood Safety";
     } else if (which == "buy") {
       current_mean = "Sec_Buy_Now_N";
-      header = "Shopping Safety Across South Sudan";
+      header = "Shopping Safety";
     } else if (which == "culture") {
       current_mean = "Sec_Cul_Now_N";
-      header = "Cultural Events Safety Across South Sudan";
+      header = "Cultural Events Safety";
     } else if (which == "overall") {
       current_mean = "overall_sec_mean_score";
-      header = "Overall Safety Across South Sudan";
+      header = "Overall Safety";
     }
 
     survey_data = filtered_data;
@@ -374,27 +382,29 @@
   }
 
   function handleGunsClick() {
+    activeButton = "guns";
     elections_check = false;
     bars = false;
     survey_data = default_survey_data;
     heightScale.domain([1, 3]).range([1, 80]);
     current_mean = "Sec_Gunshots_Now_N";
-    header = "Gunshots Heard at Night Across South Sudan";
+    header = "Gunshots at Night";
   }
 
   function handlePoliticsClick() {
+    activeButton = "politics";
     current_mean = "overall_sec_mean_score";
     bars = true;
     elections_check = false;
-    header = "Political Party Preferences Across South Sudan";
+    header = "Political Preferences";
   }
 
   function handleElectionsClick() {
+    activeButton = "elections";
     bars = false;
     elections_check = true;
+    header = "Wanting an Election";
   }
-
-  let open = false;
 
   const topics = [
     { value: "overall", label: "Overall" },
@@ -406,52 +416,109 @@
   ];
 
   function handleSelect(topic) {
+    activeButton = "select";
     selectedTopic = topic;
     handleTopicClick(topic);
     open = false;
+  }
+
+  const options = [
+    { value: "poc_idp", label: "POC+IDP" },
+    { value: "poc", label: "POC" },
+    { value: "idp", label: "IDP" },
+    { value: "oth", label: "Other" },
+    { value: "all", label: "All" },
+  ];
+
+  let activeButton = "safety";
+  let activeEnvButton = "all";
+
+  function handleBarClick(event) {
+    const details = event.detail.value;
+    current_location = details;
+    console.log("Received in App:", details);
+    isListVisible = true;
+  }
+
+  function closeList() {
+    isListVisible = false;
   }
 </script>
 
 <main>
   <h1>{header}</h1>
-  <div class="environment_buttons">
-    <label for="envSelect">Environment</label>
-    <select
-      id="envSelect"
-      bind:value={selectedEnv}
-      on:change={() => handleEnvClick(selectedEnv)}
-    >
-      <option value="poc_idp">POC+IDP</option>
-      <option value="poc">POC</option>
-      <option value="idp">IDP</option>
-      <option value="oth">Other</option>
-      <option value="all">All</option>
-    </select>
-  </div>
+  <!-- environment -->
+  {#if !isMobile}
+    <div class="environment_buttons">
+      {#each options as opt}
+        <button
+          class:selected={opt.value === selectedEnv}
+          on:click={() => handleEnvClick(opt.value)}
+        >
+          {opt.label}
+        </button>
+      {/each}
+    </div>
+  {:else}
+    <div class="env_burger-menu">
+      <button class="env_burger-icon" on:click={toggleEnvMenu}>☰</button>
+      {#if menuEnvOpen}
+        <div class="env_burger-dropdown">
+          {#each options as opt}
+            <button
+              class:selected={opt.value === selectedEnv}
+              on:click={() => {
+                handleEnvClick(opt.value);
+                menuEnvOpen = false;
+              }}
+            >
+              {opt.label}
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 
+  <!-- topics  -->
   {#if !isMobile}
     <div class="buttons-container">
       <div class="dropdown">
-        <div class="button">Safety</div>
+        <div class="button" class:active={activeButton === "safety"}>
+          Safety
+        </div>
         <div class="menu">
           {#each topics as t}
-            <button
-              style="font-family: 'Montserrat';"
-              on:click={() => handleSelect(t.value)}
-            >
+            <button on:click={() => handleSelect(t.value)}>
               {t.label}
             </button>
           {/each}
         </div>
       </div>
 
-      <button class="guns_button" on:click={handleGunsClick}>Gunshots</button>
-      <button class="politics_button" on:click={handlePoliticsClick}
-        >Politics</button
+      <button
+        class="guns_button"
+        class:active={activeButton === "guns"}
+        on:click={handleGunsClick}
       >
-      <button class="elections_button" on:click={handleElectionsClick}
-        >Elections</button
+        Gunshots
+      </button>
+
+      <button
+        class="politics_button"
+        class:active={activeButton === "politics"}
+        on:click={handlePoliticsClick}
       >
+        Politics
+      </button>
+
+      <button
+        class="elections_button"
+        class:active={activeButton === "elections"}
+        on:click={handleElectionsClick}
+      >
+        Elections
+      </button>
     </div>
   {:else}
     <div class="burger-menu">
@@ -479,15 +546,20 @@
       {/if}
     </div>
   {/if}
-  <!-- <button class="list_button" on:click={() => (isListVisible = !isListVisible)}>
-    {isListVisible ? "Hide List" : "Show List"}
-  </button> -->
-  <!-- <List {aggregatedLocations} /> -->
+  {#if isListVisible}
+    <List {aggregatedLocations} {current_location} {default_survey_data} on:barClick={closeList} />
+  {/if}
 
   <div class="map" bind:clientWidth={width} bind:clientHeight={height}>
     <svg {width} {height}>
       {#if polygon_data && geo_data}
-        <Map {polygon_data} {geo_data} {pathGenerator} {width} />
+        <Map
+          {polygon_data}
+          {geo_data}
+          {disputed_data}
+          {pathGenerator}
+          {width}
+        />
       {/if}
 
       {#if width && height && aggregatedLocations}
@@ -508,9 +580,15 @@
             {current_mean}
             {aggregatedLocations}
             {colorScale}
+            on:barClick={handleBarClick}
           />
         {:else if elections_check}
-          <Elections {elections} {colorScale} {indy_locs} />
+          <Elections
+            {elections}
+            {colorScale}
+            {indy_locs}
+            on:barClick={handleBarClick}
+          />
         {:else if current_mean == "Sec_Gunshots_Now_N"}
           <!-- <Spikes
             {aggregatedLocations}
@@ -525,6 +603,7 @@
             {current_mean}
             {colorScale}
             {indy_locs}
+            on:barClick={handleBarClick}
           />
         {:else}
           <Lolly
@@ -532,6 +611,7 @@
             {current_mean}
             {colorScale}
             {indy_locs}
+            on:barClick={handleBarClick}
           />
         {/if}
       {/if}
@@ -581,6 +661,7 @@
     font-size: 20px;
     margin: 0;
     padding: 0;
+    text-align: center;
   }
 
   .map {
@@ -588,54 +669,32 @@
     height: 100%;
   }
 
-  .environment_buttons {
-    position: absolute;
-    top: 5px;
-    display: flex;
-    flex-direction: column;
-    width: 140px;
-  }
-
-  .environment_buttons {
-    right: 5px;
-  }
-
-  .environment_buttons label {
-    font-size: 14px;
-    margin-bottom: 2px;
-  }
-
-  .environment_buttons select {
-    width: 100%;
-    padding: 6px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .buttons-container {
-    position: absolute;
-    top: 5px;
-    left: 5px;
+  .button.active,
+  button.active {
+    background-color: #000000;
+    color: white;
+    font-weight: 500;
   }
 
   .guns_button {
-    background-color: #f2f2f2;
+    background-color: #d4d4d4;
     position: absolute;
-    top: 45px;
+    top: 40px;
     left: 5px;
     padding: 6px 12px;
     font-family: "Montserrat";
     font-size: 14px;
     border-radius: 3px;
     cursor: pointer;
+    border: none;
   }
 
   .politics_button {
-    background-color: #f2f2f2;
+    background-color: #d4d4d4;
+    border: none;
     position: absolute;
     font-family: "Montserrat";
-    top: 85px;
+    top: 75px;
     left: 5px;
     padding: 6px 12px;
     font-size: 14px;
@@ -644,10 +703,11 @@
   }
 
   .elections_button {
-    background-color: #f2f2f2;
+    background-color: #d4d4d4;
+    border: none;
     position: absolute;
     font-family: "Montserrat";
-    top: 125px;
+    top: 110px;
     left: 5px;
     padding: 6px 12px;
     font-size: 14px;
@@ -655,26 +715,23 @@
     cursor: pointer;
   }
 
-  label {
-    font-family: "Montserrat";
-    font-weight: 500;
-  }
-
   .button {
-    background-color: #f2f2f2;
+    background-color: #d4d4d4;
     position: absolute;
     font-family: "Montserrat";
     top: 5px;
     left: 5px;
-    border: 2px solid black;
+    border: none;
     padding: 6px 12px;
     font-size: 14px;
     border-radius: 3px;
     cursor: pointer;
+    font-weight: 500;
   }
 
   .button:hover {
     background-color: #e0e0e0;
+    color: black;
   }
 
   .menu {
@@ -693,6 +750,11 @@
 
   .dropdown:hover .menu {
     display: block;
+  }
+
+  button {
+    font-family: "Montserrat";
+    font-weight: 500;
   }
 
   .menu button {
@@ -716,11 +778,12 @@
   }
 
   .burger-icon {
-    background-color: #f2f2f2;
+    background-color: black;
+    color: white;
     border: 2px solid #000;
     border-radius: 4px;
     font-size: 20px;
-    padding: 6px 10px;
+    padding: 5px 8px;
     cursor: pointer;
     font-family: "Montserrat";
   }
@@ -771,5 +834,91 @@
 
   .burger-dropdown button:hover {
     background-color: #e0e0e0;
+  }
+
+  .environment_buttons {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    z-index: 100;
+  }
+
+  .environment_buttons button {
+    display: inline-block;
+    width: auto;
+    min-width: 0;
+    padding: 6px 10px;
+    font-family: "Montserrat";
+    font-size: 14px;
+    background-color: #d4d4d4;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      box-shadow 0.2s;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .environment_buttons button:hover {
+    background-color: #ddd;
+  }
+
+  .environment_buttons button.selected {
+    background-color: #000000;
+    color: white;
+  }
+
+  .env_burger-menu {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    border-radius: 3px;
+  }
+
+  .env_burger-icon {
+    background-color: black;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 4px;
+    font-size: 20px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-family: "Montserrat";
+  }
+
+  .env_burger-dropdown {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+  }
+
+  .env_burger-dropdown button {
+    margin: 4px 0;
+    background-color: #f2f2f2;
+    border: none;
+    padding: 6px 8px;
+    text-align: right;
+    border-radius: 3px;
+    font-family: "Montserrat";
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .env_burger-dropdown button:hover {
+    background-color: #f2f2f2;
   }
 </style>

@@ -1,5 +1,5 @@
 <script>
-    export let polygon_data, geo_data, width, pathGenerator;
+    export let polygon_data, geo_data, width, disputed_data, pathGenerator;
 </script>
 
 {#each polygon_data as feature}
@@ -14,18 +14,11 @@
     <!-- polygon -->
     <path
         d={pathGenerator(feature)}
-        stroke={feature.properties.ADMIN === "South Sudan" ? "#b3b3b3" : "#b3b3b3"}
+        stroke={feature.properties.ADMIN === "South Sudan"
+            ? "#b3b3b3"
+            : "#b3b3b3"}
         fill={feature.properties.ADMIN === "South Sudan" ? "#f2f2f2" : "white"}
     />
-    {#each geo_data as feature}
-        <path
-            d={pathGenerator(feature)}
-            stroke="steelblue"
-            stroke-width="3"
-            fill="none"
-            opacity="0.5"
-        />
-    {/each}
 
     <!-- label -->
     <!-- {#if feature.properties.ADMIN != "South Sudan"}
@@ -41,7 +34,23 @@
         </text>
     {/if} -->
 {/each}
-<g
+{#each geo_data as feature}
+    <path
+        d={pathGenerator(feature)}
+        stroke="steelblue"
+        stroke-width="3"
+        fill="none"
+        opacity="0.5"
+    />
+{/each}
+{#each disputed_data as feature}
+    <path
+        d={pathGenerator(feature)}
+        fill="gray"
+        opacity="0.5"
+    />
+{/each}
+<!-- <g
     transform="translate({width - 140}, 70)"
     font-family="Montserrat"
     font-weight="500"
@@ -107,4 +116,4 @@
             font-family="Montserrat">Other</text
         >
     </g>
-</g>
+</g> -->
