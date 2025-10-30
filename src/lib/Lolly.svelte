@@ -42,7 +42,7 @@
         d.x +
         (d.adm2 === "Yirol East"
             ? 40
-            : ["Gogrial West", "Bor South"].includes(d.adm2)
+            : ["Gogrial West", "Bor South", "Yirol West"].includes(d.adm2)
               ? 20
               : 0)
     },
@@ -156,7 +156,7 @@
             2.5 +
             (d[0] === "Yirol East"
                 ? 40
-                : ["Gogrial West", "Bor South"].includes(d[0])
+                : ["Gogrial West", "Bor South", "Yirol West"].includes(d[0])
                   ? 20
                   : 0)
         }, ${

@@ -33,7 +33,7 @@
         d.x +
         (d.adm2 === "Yirol East"
             ? 40
-            : ["Gogrial West", "Bor South"].includes(d.adm2)
+            : ["Gogrial West", "Bor South", "Yirol West"].includes(d.adm2)
               ? 20
               : 0)
     },
@@ -45,17 +45,6 @@
     }
   )`}
         >
-            <!-- <rect
-                x="-5.5"
-                y="-7"
-                width="7"
-                height="7"
-                fill={colorScale(d.poc)}
-                opacity="1"
-                stroke="black"
-                stroke-width="0.5"
-            /> -->
-
             <rect
                 x="0"
                 y="0"
@@ -82,20 +71,6 @@
                 fill-opacity="1"
             />
 
-            <!-- <image
-                href={d.poc === "POC"
-                    ? "./el_white.svg"
-                    : d.poc === "IDP"
-                      ? "./el_gray.svg"
-                      : "./el_black.svg"}
-                x={-sizeScale(d.meanScore) / 2 -1}
-                y={getCircleY(d.meanScore) - sizeScale(d.meanScore)}
-                width={sizeScale(d.meanScore)}
-                height={sizeScale(d.meanScore)}
-            >
-                <title>Score: {d.meanScore.toFixed(2)}</title>
-            </image> -->
-
             <line
                 x1="-10"
                 y1={lineHeight}
@@ -115,7 +90,7 @@
             2.5 +
             (d[0] === "Yirol East"
                 ? 40
-                : ["Gogrial West", "Bor South"].includes(d[0])
+                : ["Gogrial West", "Bor South", "Yirol West"].includes(d[0])
                   ? 20
                   : 0)
         }, ${

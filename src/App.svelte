@@ -30,6 +30,7 @@
     elections_check = false,
     open = false,
     current_location,
+    regions_data,
     axisGroup,
     isListVisible = false,
     header = "Overall Safety",
@@ -39,6 +40,7 @@
       "./data/nile.json",
       "./data/country_polygons.json",
       "./data/disputed.json",
+      "./data/regions.json",
     ],
     margin = { top: 30, bottom: 30, left: 30, right: 30 };
 
@@ -88,6 +90,7 @@
       geo_data = geo[0].features;
       polygon_data = geo[1].features;
       disputed_data = geo[2].features;
+      regions_data = geo[3].features;
     })();
 
     // fallback for normal window resizing
@@ -124,6 +127,8 @@
           (a, b) => pocOrder.indexOf(a[0]) - pocOrder.indexOf(b[0]),
         ),
       ]);
+
+    location_groups = location_groups.filter((d) => d[0] != "Yirol East");
 
     // create objects with location, overall mean and name
     aggregatedLocations = location_groups.flatMap(([adm2, pocGroups]) => {
@@ -195,6 +200,9 @@
       });
     });
 
+    elections = elections.filter(
+      (d) => d.poc !== "POC" && d.adm2 !== "Yirol West",
+    );
     elections.sort((a, b) => b.meanScore - a.meanScore);
 
     // individual locations for labels
@@ -204,6 +212,8 @@
     });
 
     indy_locs = d3.groups(projected_locations, (d) => d.ADM2);
+    indy_locs = indy_locs.filter((d) => d[0] != "Yirol East");
+
     //party politics data
     test = location_groups.flatMap(([adm2, pocGroups]) => {
       const n = pocGroups.length; // number of subgroups (POC, IDP, Other)
@@ -227,51 +237,26 @@
           (d) => d.Party_Vision,
         );
 
-        // Convert Map → sorted array
         const sortedVisionCounts = Array.from(
           visionCounts,
-          ([Party_Vision, count]) => ({
-            Party_Vision,
-            count,
-          }),
+          ([Party_Vision, count]) => ({ Party_Vision, count }),
         ).sort((a, b) => d3.descending(a.count, b.count));
 
-        // Define the main three
+        // Keep only the two main parties
         const mainParties = [
           "Sudan People’s Liberation Movement In Government (SPLM-IG)",
           "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-          "None of the parties",
         ];
 
-        // Separate them
-        const main = sortedVisionCounts.filter((d) =>
+        const filteredVisionCounts = sortedVisionCounts.filter((d) =>
           mainParties.includes(d.Party_Vision),
         );
 
-        // Combine everything else into “Other parties”
-        const otherSum = d3.sum(
-          sortedVisionCounts
-            .filter((d) => !mainParties.includes(d.Party_Vision))
-            .map((d) => d.count),
-        );
-
-        // Add the “Other parties” entry
-        const filteredVisionCounts = [
-          ...main,
-          { Party_Vision: "Other parties", count: otherSum },
-        ];
-
-        // Optional: enforce consistent order
-        const partyOrder = [
-          "Sudan People’s Liberation Movement In Government (SPLM-IG)",
-          "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-          "None of the parties",
-          "Other parties",
-        ];
+        // Ensure order
         filteredVisionCounts.sort(
           (a, b) =>
-            partyOrder.indexOf(a.Party_Vision) -
-            partyOrder.indexOf(b.Party_Vision),
+            mainParties.indexOf(a.Party_Vision) -
+            mainParties.indexOf(b.Party_Vision),
         );
 
         return {
@@ -291,8 +276,8 @@
     let scaleFactor, y_center;
     if (width >= 1200) {
       // large screens
-      scaleFactor = 2.5;
-      y_center = 7.5;
+      scaleFactor = 2.7;
+      y_center = 7.7;
     } else if (width >= 768) {
       // medium screens
       scaleFactor = 3.5; // adjust as needed
@@ -447,7 +432,7 @@
 
   function closeList() {
     isListVisible = false;
-    width = keep_width; 
+    width = keep_width;
   }
 </script>
 
@@ -553,7 +538,12 @@
     </div>
   {/if}
   {#if isListVisible}
-    <List {aggregatedLocations} {current_location} {default_survey_data} on:barClick={closeList} />
+    <List
+      {aggregatedLocations}
+      {current_location}
+      {default_survey_data}
+      on:barClick={closeList}
+    />
   {/if}
 
   <div class="map" bind:clientWidth={width} bind:clientHeight={height}>
@@ -563,6 +553,7 @@
           {polygon_data}
           {geo_data}
           {disputed_data}
+          {regions_data}
           {pathGenerator}
           {width}
           {map_shrink}

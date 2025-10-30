@@ -24,7 +24,7 @@
     const maxCount = d3.max(
         test.flatMap((d) => d.filteredVisionCounts.map((p) => p.count)),
     );
-    const scale = d3.scaleLinear().domain([0, maxCount]).range([2, 20]); // bar width
+    const scale = d3.scaleLinear().domain([0, maxCount]).range([2, 25]); // bar width
 
     // Assign direction per POC type
     const direction = {
@@ -42,56 +42,34 @@
     }
 </script>
 
-<!-- {#each aggregatedLocations as d}
-    {#if d.x && d.y && d.meanScore != null && d.poc != "POC" && d.adm2 != "Yirol East"}
+{#each indy_locs as d}
+    {#if d[0] != "Yirol East"}
         <g
-            transform={`translate(
-    ${
-        d.x +
-        (d.adm2 === "Yirol East"
-            ? 40
-            : ["Gogrial West", "Bor South"].includes(d.adm2)
-              ? 20
-              : 0)
-    },
-    ${
-        d.y -
-        lineHeight +
-        (["Yirol East", "Gogrial West"].includes(d.adm2) ? -10 : 0) +
-        (["Wau", "Juba", "Renk"].includes(d.adm2) ? 30 : 0)
-    }
-  )`}
+            transform={`translate(${
+                d[1][0].x -
+                2.5 +
+                (["Yirol West", "Gogrial West", "Bor South"].includes(d[0])
+                    ? 25
+                    : 0)
+            }, ${
+                d[1][0].y +
+                (["Gogrial West"].includes(d[0]) ? 0 : 10) +
+                (["Wau", "Juba"].includes(d[0]) ? 30 : 0)
+            })`}
         >
             <rect
-                x="-6.5"
-                y="0"
-                width="9"
-                height={lineHeight}
-                fill="#cccccc"
-                opacity="1"
-            />
-            <rect
-                x="-5"
-                y={getCircleY(d.meanScore)}
-                width="6"
-                height={lineHeight - getCircleY(d.meanScore)}
-                fill={colorScale(d.poc)}
-                fill-opacity="1"
-            />
-
-            <line
-                x1="-10"
-                y1={lineHeight}
-                x2="10"
-                y2={lineHeight}
-                stroke="gray"
-                stroke-width="1"
+                x={-(d[0].length * 3 + 4)}
+                y="-67"
+                width={60}
+                height="60"
+                fill="white"
+                opacity="0.5"
             />
         </g>
     {/if}
-{/each} -->
+{/each}
 
-{#each test as d}
+{#each test as d, i}
     {#if d.poc != "POC" && d.adm2 != "Yirol East"}
         {#each d.filteredVisionCounts as party, i}
             <rect
@@ -103,16 +81,16 @@
                             )
                           ? 20
                           : 0) +
-                    (direction[d.poc] === 1 ? -5 : -scale(party.count))}
+                    (direction[d.poc] === 1 ? -8 : -scale(party.count))}
                 y={d.y -
-                    16 -
-                    i * 18 +
+                    25 -
+                    i * 27 +
                     (["Yirol East", "Gogrial West"].includes(d.adm2)
                         ? -10
                         : 0) +
                     (["Wau", "Juba"].includes(d.adm2) ? 30 : 0)}
                 width={scale(party.count)}
-                height={14}
+                height={25}
                 fill={d.poc === "IDP" ? "#808080" : "black"}
             />
         {/each}
@@ -134,40 +112,40 @@
                 (["Wau", "Juba"].includes(d[0]) ? 30 : 0)
             })`}
         >
-        <rect
-            x={-(d[0].length * 3 + 4)}
-            y="-7"
-            width={d[0].length * 6 + 8}
-            height="14"
-            fill="white"
-            rx="2"
-            opacity="0.8"
-        />
+            <rect
+                x={-(d[0].length * 3 + 4)}
+                y="-7"
+                width={d[0].length * 6 + 8}
+                height="14"
+                fill="white"
+                rx="2"
+                opacity="0.8"
+            />
 
-        <!-- Text centered on the same 0,0 -->
-        <text
-            text-anchor="middle"
-            dominant-baseline="middle"
-            font-size="10"
-            font-weight="600"
-            font-family="Montserrat"
-            fill={d.env == "IDP Camp" ? "black" : "black"}
-        >
-            {d[0]}
-        </text>
-        />
-        <!-- Background rect centered on 0,0 -->
-        <rect
-            x={-(d[0].length * 3 + 4)}
-            y="-7"
-            width={d[0].length * 6 + 8}
-            height="14"
-            fill="white"
-            rx="2"
-            opacity="0"
-            cursor="pointer"
-            on:click={() => handleBarsClick(d[0])}
-        />
+            <!-- Text centered on the same 0,0 -->
+            <text
+                text-anchor="middle"
+                dominant-baseline="middle"
+                font-size="10"
+                font-weight="600"
+                font-family="Montserrat"
+                fill={d.env == "IDP Camp" ? "black" : "black"}
+            >
+                {d[0]}
+            </text>
+            />
+            <!-- Background rect centered on 0,0 -->
+            <rect
+                x={-(d[0].length * 3 + 4)}
+                y="-7"
+                width={d[0].length * 6 + 8}
+                height="14"
+                fill="white"
+                rx="2"
+                opacity="0"
+                cursor="pointer"
+                on:click={() => handleBarsClick(d[0])}
+            />
         </g>
     {/if}
 {/each}

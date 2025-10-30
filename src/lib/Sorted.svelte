@@ -30,21 +30,34 @@
     let idpData, otherData, maxCount, scale;
 
     $: if (test) {
-        // 1️⃣ Get all unique ADM2 names from test
+        // Get all unique ADM2 names from test
         const allLocations = Array.from(new Set(test.map((d) => d.adm2)));
 
-        // 2️⃣ Separate existing IDP and Other data
+        // Separate existing IDP and Other data
         const idpExisting = test.filter((d) => d.poc === "IDP");
         const otherExisting = test.filter((d) => d.poc === "Other");
 
-        // 3️⃣ Create lookup maps for quick access
+        // Create lookup maps for quick access
         const idpMap = new Map(idpExisting.map((d) => [d.adm2, d]));
         const otherMap = new Map(otherExisting.map((d) => [d.adm2, d]));
 
-        // 4️⃣ Make sure all ADM2 are represented in both
+        // Define the two parties to keep
+        const mainParties = [
+            "Sudan People’s Liberation Movement In Government (SPLM-IG)",
+            "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
+        ];
+
+        // Make sure all ADM2 are represented in both
         idpData = allLocations.map((adm2) => {
             const d = idpMap.get(adm2);
-            if (d) return d;
+            if (d) {
+                // Also filter out extra parties in existing entries
+                d.filteredVisionCounts = d.filteredVisionCounts.filter((p) =>
+                    mainParties.includes(p.Party_Vision),
+                );
+                return d;
+            }
+
             // create a placeholder with zero counts
             const otherRef = otherMap.get(adm2);
             return {
@@ -54,29 +67,23 @@
                 x: otherRef?.x ?? 0,
                 y: otherRef?.y ?? 0,
                 meanScore: 0,
-                filteredVisionCounts: [
-                    {
-                        Party_Vision:
-                            "Sudan People’s Liberation Movement In Government (SPLM-IG)",
-                        count: 0,
-                    },
-                    {
-                        Party_Vision:
-                            "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-                        count: 0,
-                    },
-                    { Party_Vision: "None of the parties", count: 0 },
-                    {
-                        Party_Vision: "South Sudan Opposition Alliance (SSOA)",
-                        count: 0,
-                    },
-                ],
+                filteredVisionCounts: mainParties.map((Party_Vision) => ({
+                    Party_Vision,
+                    count: 0,
+                })),
             };
         });
 
         otherData = allLocations.map((adm2) => {
             const d = otherMap.get(adm2);
-            if (d) return d;
+            if (d) {
+                // Also filter out extra parties
+                d.filteredVisionCounts = d.filteredVisionCounts.filter((p) =>
+                    mainParties.includes(p.Party_Vision),
+                );
+                return d;
+            }
+
             const idpRef = idpMap.get(adm2);
             return {
                 adm2,
@@ -85,29 +92,20 @@
                 x: idpRef?.x ?? 0,
                 y: idpRef?.y ?? 0,
                 meanScore: 0,
-                filteredVisionCounts: [
-                    {
-                        Party_Vision:
-                            "Sudan People’s Liberation Movement In Government (SPLM-IG)",
-                        count: 0,
-                    },
-                    {
-                        Party_Vision:
-                            "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-                        count: 0,
-                    },
-                    { Party_Vision: "None of the parties", count: 0 },
-                    {
-                        Party_Vision: "Other parties",
-                        count: 0,
-                    },
-                ],
+                filteredVisionCounts: mainParties.map((Party_Vision) => ({
+                    Party_Vision,
+                    count: 0,
+                })),
             };
         });
 
-        // 5️⃣ Scaling
+        // Scaling
         maxCount = d3.max(
-            test.flatMap((d) => d.filteredVisionCounts.map((p) => p.count)),
+            test.flatMap((d) =>
+                d.filteredVisionCounts
+                    .filter((p) => mainParties.includes(p.Party_Vision))
+                    .map((p) => p.count),
+            ),
         );
         scale = d3.scaleLinear().domain([0, maxCount]).range([2, 40]);
     }
@@ -121,16 +119,12 @@
     const partyOptions = [
         "Sudan People’s Liberation Movement In Government (SPLM-IG)",
         "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-        "None of the parties",
-        "Other parties",
     ];
     const shortLabels = {
         "Sudan People’s Liberation Movement In Government (SPLM-IG)":
-            "government",
+            "Government",
         "Sudan People’s Liberation Movement In Opposition (SPLM-IO)":
-            "opposition",
-        "None of the parties": "none",
-        "Other parties": "other",
+            "Opposition",
     };
 
     let currentIndex = 1; // starting from SPLM-IO
@@ -141,70 +135,75 @@
         targetParty = partyOptions[currentIndex];
     }
 
+    let margin = { top: 10, bottom: 10, left: 15, right: 30 };
     let xScale, xScaleElection;
     // x-scale to position bars evenly
     $: if (aggregatedLocations && sorted_width) {
         xScale = d3
             .scaleBand()
             .domain(aggregatedLocations.map((d, i) => i))
-            .range([0, sorted_width])
+            .range([margin.left, sorted_width - margin.right])
             .padding(0.2);
     }
     $: if (elections && sorted_width) {
         xScaleElection = d3
             .scaleBand()
             .domain(elections.map((d, i) => i))
-            .range([0, sorted_width])
+            .range([margin.left, sorted_width - margin.right])
             .padding(0.2);
     }
 </script>
 
 <div class="sorted" bind:clientWidth={sorted_width}>
     {#if bars}
-        <button class="switch_button" on:click={switchParty}> switch </button>
+        <button class="switch_button" on:click={switchParty}>
+            <i class="fa fa-exchange" aria-hidden="true"></i>
+        </button>
         <p>
-            Party: <strong>{shortLabels[targetParty]}</strong>
+            <strong>{shortLabels[targetParty]}</strong>
         </p>
     {/if}
     <svg width={sorted_width} {height}>
         {#if bars}
-            <!-- IDP -->
-            {#each idpData as d, i}
-                {#each d.filteredVisionCounts.filter((p) => p.Party_Vision === targetParty) as p}
-                    <rect
-                        x={centerX - scale(p.count)}
-                        y={i * adm2Spacing + 10}
-                        width={scale(p.count)}
-                        height={10}
-                        fill="gray"
-                    />
+            <g transform={`translate(0, 20)`}>
+                <!-- IDP -->
+                {#each idpData as d, i}
+                    {#each d.filteredVisionCounts.filter((p) => p.Party_Vision === targetParty) as p}
+                        <rect
+                            x={centerX - scale(p.count)}
+                            y={i * adm2Spacing + 10}
+                            width={scale(p.count)}
+                            height={10}
+                            fill="gray"
+                        />
+                    {/each}
                 {/each}
-            {/each}
-            <!-- Other -->
-            {#each otherData as d, i}
-                {#each d.filteredVisionCounts.filter((p) => p.Party_Vision === targetParty) as p}
-                    <rect
-                        x={centerX + 5}
-                        y={i * adm2Spacing + 10}
-                        width={scale(p.count)}
-                        height={10}
-                        fill="black"
-                    />
-                    <text
-                        x={centerX + scale(p.count) + 15}
-                        y={i * adm2Spacing + 18}
-                        font-family="Montserrat"
-                        font-size="10px"
-                        font-weight="600">{d.adm2}</text
-                    >
+                <!-- Other -->
+                {#each otherData as d, i}
+                    {#each d.filteredVisionCounts.filter((p) => p.Party_Vision === targetParty) as p}
+                        <rect
+                            x={centerX + 5}
+                            y={i * adm2Spacing + 10}
+                            width={scale(p.count)}
+                            height={10}
+                            fill="black"
+                        />
+                        <text
+                            x={centerX + scale(p.count) + 15}
+                            y={i * adm2Spacing + 18}
+                            font-family="Montserrat"
+                            font-size="10px"
+                            font-weight="600">{d.adm2}</text
+                        >
+                    {/each}
                 {/each}
-            {/each}
+            </g>
         {:else if elections_check}
             <!-- Elections -->
             <line
                 x1="10"
                 y1={140 + lineHeight / 2}
-                x2="470"
+                x2={sorted_width - 20}
                 y2={140 + lineHeight / 2}
                 stroke="black"
                 stroke-width="1"
@@ -212,7 +211,7 @@
                 stroke-dasharray="8 5"
             />
             {#each elections as d, i}
-                {#if d.x && d.y && d.meanScore != null}
+                {#if d.meanScore !== undefined}
                     <g
                         transform={`translate(${xScaleElection(i) + xScaleElection.bandwidth() / 2}, 140)`}
                     >
@@ -263,19 +262,6 @@
                             </text>
                         </g>
 
-                        <!-- Score indicator circle -->
-                        <!-- <circle
-                            cx="1"
-                            cy={getCircleY(d.meanScore)}
-                            r="3"
-                            fill={colorScale(d.poc)}
-                            stroke="black"
-                            stroke-width="1"
-                        >
-                            <title>
-                                Score: {d.meanScore.toFixed(2)}
-                            </title>
-                        </circle> -->
                         <line
                             x1="-10"
                             y1={lineHeight}
@@ -291,7 +277,7 @@
             <line
                 x1="10"
                 y1={140 + lineHeight / 2}
-                x2="470"
+                x2={sorted_width - 20}
                 y2={140 + lineHeight / 2}
                 stroke="black"
                 stroke-width="1"
@@ -424,13 +410,14 @@
 
     .switch_button {
         position: absolute;
-        top: 5px;
-        left: 160px;
+        top: 0px;
+        left: 130px;
         z-index: 10;
-        background-color: white;
-        border: 1px solid black;
+        background-color: black;
+        border: none;
+        color: white;
         border-radius: 4px;
-        padding: 4px 8px;
+        padding: 3px 8px;
         font-family: "Montserrat", sans-serif;
         font-size: 12px;
         cursor: pointer;
@@ -438,8 +425,8 @@
 
     p {
         position: absolute;
-        top: 35px;
-        left: 160px;
+        top: 0px;
+        left: 20px;
         font-family: "Montserrat", sans-serif;
         font-size: 14px;
         margin: 0;
