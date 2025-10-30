@@ -425,15 +425,18 @@
         padding-bottom: 5px;
         text-align: center;
     }
+
     .close_btn {
         position: absolute;
         top: 5px;
+        right: 5px;
         background-color: black;
         color: white;
         font-family: "Montserrat";
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 900;
         border-radius: 2px;
+        font-size: 20px;
     }
     .list {
         z-index: 999;

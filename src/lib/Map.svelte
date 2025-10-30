@@ -1,5 +1,10 @@
 <script>
-    export let polygon_data, geo_data, width, disputed_data, pathGenerator;
+    export let polygon_data,
+        geo_data,
+        map_shrink,
+        width,
+        disputed_data,
+        pathGenerator;
 </script>
 
 {#each polygon_data as feature}
@@ -44,11 +49,7 @@
     />
 {/each}
 {#each disputed_data as feature}
-    <path
-        d={pathGenerator(feature)}
-        fill="gray"
-        opacity="0.5"
-    />
+    <path d={pathGenerator(feature)} fill="gray" opacity="0.5" />
 {/each}
 <!-- <g
     transform="translate({width - 140}, 70)"
@@ -117,3 +118,4 @@
         >
     </g>
 </g> -->
+

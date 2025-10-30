@@ -433,7 +433,12 @@
   let activeButton = "safety";
   let activeEnvButton = "all";
 
+  let map_shrink = false;
+  let keep_width;
   function handleBarClick(event) {
+    map_shrink = true;
+    keep_width = width;
+    width = width * 0.7;
     const details = event.detail.value;
     current_location = details;
     console.log("Received in App:", details);
@@ -442,6 +447,7 @@
 
   function closeList() {
     isListVisible = false;
+    width = keep_width; 
   }
 </script>
 
@@ -559,6 +565,7 @@
           {disputed_data}
           {pathGenerator}
           {width}
+          {map_shrink}
         />
       {/if}
 
