@@ -36,10 +36,10 @@
 <g
     on:click={toggleCharts}
     cursor="pointer"
-    transform={`translate(10, ${height - 100})`}
+    transform={`translate(10, ${height - 150})`}
 >
     <!-- Background rectangle -->
-    <rect x="0" y="0" width="110" height="30" fill="#d4d4d4" rx="3" ry="3" />
+    <rect x="0" y="0" width="110" height="30" fill="steelblue" rx="3" ry="3" />
 
     <!-- Text -->
     <text
@@ -49,10 +49,10 @@
         dominant-baseline="middle"
         font-family="Montserrat"
         font-size="14"
-        fill="black"
+        fill="white"
         pointer-events="none"
     >
-        {showElections ? "Overlay Safety" : "Just Election"}
+        {showElections ? "Show Safety" : "Show Election"}
     </text>
 </g>
 

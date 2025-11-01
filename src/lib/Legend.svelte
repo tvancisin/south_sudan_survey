@@ -259,7 +259,7 @@
 <div class="left_legend">
     <svg width="200" height="200">
         <!-- White -->
-        <rect
+        <!-- <rect
             x="30"
             y="30"
             rx="3"
@@ -284,17 +284,46 @@
             font-family="Montserrat"
             font-weight="500"
             alignment-baseline="middle"
-            text-anchor="start">POC</text
+            text-anchor="start">POC</text -->
         >
 
         <!-- Gray -->
+        <rect
+            x="30"
+            y="30"
+            rx="3"
+            width="20"
+            height="20"
+            fill="gray"
+            stroke="black"
+        />
+        <line
+            x1="55"
+            y1="37.5"
+            x2="65"
+            y2="37.5"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x="70"
+            y="40"
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="start">IDP</text
+        >
+
+        <!-- Black -->
         <rect
             x="30"
             y="60"
             rx="3"
             width="20"
             height="20"
-            fill="gray"
+            fill="black"
             stroke="black"
         />
         <line
@@ -309,35 +338,6 @@
         <text
             x="70"
             y="70"
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="start">IDP</text
-        >
-
-        <!-- Black -->
-        <rect
-            x="30"
-            y="90"
-            rx="3"
-            width="20"
-            height="20"
-            fill="black"
-            stroke="black"
-        />
-        <line
-            x1="55"
-            y1="97.5"
-            x2="65"
-            y2="97.5"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x="70"
-            y="100"
             font-size="12"
             font-family="Montserrat"
             font-weight="500"
@@ -364,7 +364,7 @@
 
     .left_legend {
         position: absolute;
-        top: 150px;
+        top: 140px;
         left: -5px;
     }
 
