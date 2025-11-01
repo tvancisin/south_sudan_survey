@@ -285,7 +285,7 @@
     } else {
       // small screens
       scaleFactor = 6.5; // adjust as needed
-      y_center = 6.2;
+      y_center = 9;
     }
 
     return d3
@@ -545,6 +545,16 @@
       on:barClick={closeList}
     />
   {/if}
+  <Legend
+    {heightScale}
+    {margin}
+    {height}
+    {width}
+    {current_mean}
+    {spike}
+    {bars}
+    {elections_check}
+  />
 
   <div class="map" bind:clientWidth={width} bind:clientHeight={height}>
     <svg {width} {height}>
@@ -561,16 +571,6 @@
       {/if}
 
       {#if width && height && aggregatedLocations}
-        <!-- <Legend
-          {heightScale}
-          {margin}
-          {height}
-          {width}
-          {current_mean}
-          {spike}
-          {bars}
-          {elections_check}
-        /> -->
         {#if bars}
           <Bars
             {test}
@@ -625,7 +625,7 @@
         on:waveClick={handleWaveClick}
       />
     {/if} -->
-    <Sorted
+    <!-- <Sorted
       {aggregatedLocations}
       {test}
       {colorScale}
@@ -638,7 +638,7 @@
       {elections}
       {spike}
       {angledSpike}
-    />
+    /> -->
   </div>
 </main>
 
@@ -770,6 +770,7 @@
   }
 
   .burger-menu {
+    z-index: 9;
     position: absolute;
     top: 5px;
     left: 5px;

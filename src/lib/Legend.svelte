@@ -19,8 +19,8 @@
             adm2: "Malakal",
             poc: "Other",
             env: "Urban",
-            x: width - 40,
-            y: 220,
+            x: 150,
+            y: 20,
             filteredVisionCounts: [
                 {
                     Party_Vision:
@@ -32,22 +32,14 @@
                         "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
                     count: 344,
                 },
-                {
-                    Party_Vision: "None of the parties",
-                    count: 82,
-                },
-                {
-                    Party_Vision: "Other parties",
-                    count: 778,
-                },
             ],
         },
         {
             adm2: "Malakal",
             poc: "IDP",
             env: "IDP Camp",
-            x: width - 50,
-            y: 220,
+            x: 143,
+            y: 20,
             filteredVisionCounts: [
                 {
                     Party_Vision:
@@ -59,14 +51,6 @@
                         "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
                     count: 526,
                 },
-                {
-                    Party_Vision: "None of the parties",
-                    count: 58,
-                },
-                {
-                    Party_Vision: "Other parties",
-                    count: 584,
-                },
             ],
         },
     ];
@@ -74,363 +58,321 @@
 
     // Assign direction per POC type
     const direction = {
-        POC: 1,
         IDP: -1,
         Other: 1,
     };
 </script>
 
-<svg>
-    {#if bars}
-        {#each bars_sample as d}
-            {#each d.filteredVisionCounts as party, i}
-                <rect
-                    x={d.x +
-                        (direction[d.poc] === 1 ? -5 : -scale(party.count))}
-                    y={d.y - i * 18}
-                    width={scale(party.count)}
-                    height={15}
-                    fill={d.poc === "IDP" ? "gray" : "black"}
-                />
+<div class="right_legend">
+    <svg width="200" height="200">
+        {#if bars}
+            {#each bars_sample as d}
+                {#each d.filteredVisionCounts as party, i}
+                    <rect
+                        x={d.x +
+                            10 +
+                            (direction[d.poc] === 1 ? -5 : -scale(party.count))}
+                        y={d.y - i * 23 + 10}
+                        width={scale(party.count)}
+                        height={20}
+                        fill={d.poc === "IDP" ? "gray" : "black"}
+                    />
+                {/each}
             {/each}
-        {/each}
-        <line
-            x1={width - 60}
-            y1="240"
-            x2={width - 60}
-            y2="260"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 55}
-            y={270}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            IDP
-        </text>
-        <line
-            x1={width - 30}
-            y1="240"
-            x2={width - 30}
-            y2="260"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 25}
-            y={270}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="middle"
-        >
-            Other
-        </text>
-        <line
-            x1={width - 70}
-            y1="172"
-            x2={width - 85}
-            y2="172"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 90}
-            y={172}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Other
-        </text>
-        <text
-            x={width - 90}
-            y={190}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            No Party
-        </text>
-        <line
-            x1={width - 60}
-            y1="191"
-            x2={width - 85}
-            y2="191"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 90}
-            y={210}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Opposition
-        </text>
-        <line
-            x1={width - 70}
-            y1="209"
-            x2={width - 85}
-            y2="209"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 90}
-            y={230}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Government
-        </text>
-        <line
-            x1={width - 65}
-            y1="228"
-            x2={width - 85}
-            y2="228"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-    {:else if elections_check}
-        <rect
-            x={width - 30}
-            y="170"
-            width="6"
-            height="70"
-            fill="#a6a6a6"
-            opacity="0.3"
-        />
-        <rect
-            x={width - 30}
-            y={190}
-            width="6"
-            height="50"
-            fill="gray"
-            opacity="0.7"
-        />
-        <image
-            href="./el_gray.svg"
-            x={width - 37}
-            y={180}
-            width={22}
-            height={22}
-        >
-        </image>
-        <line
-            x1={width - 40}
-            y1="170"
-            x2={width - 55}
-            y2="170"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 60}
-            y={170}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Soon
-        </text>
 
-        <line
-            x1={width - 40}
-            y1="240"
-            x2={width - 55}
-            y2="240"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 60}
-            y={240}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Never
-        </text>
-    {:else if current_mean === "Sec_Gunshots_Now_N"}
-        <rect
-            x={width - 30}
-            y="170"
-            width="6"
-            height="70"
-            fill="#a6a6a6"
-            opacity="0.3"
-        />
-        <rect
-            x={width - 30}
-            y={190}
-            width="6"
-            height="50"
-            fill="gray"
-            opacity="0.7"
-        />
-        <image
-            href="./bullet_gray.svg"
-            x={width - 38}
-            y={180}
-            width={22}
-            height={22}
-        >
-        </image>
-        <line
-            x1={width - 40}
-            y1="170"
-            x2={width - 55}
-            y2="170"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 60}
-            y={170}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Every Night
-        </text>
-
-        <line
-            x1={width - 40}
-            y1="240"
-            x2={width - 55}
-            y2="240"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x={width - 60}
-            y={240}
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="end"
-        >
-            Never
-        </text>
-    {:else}
-        <rect
-            x={width - 30}
-            y="170"
-            width="6"
-            height="70"
-            fill="#a6a6a6"
-            opacity="0.3"
-        />
-
-        <rect
-            x={width - 30}
-            y={190}
-            width="6"
-            height="50"
-            fill="gray"
-            opacity="0.7"
-        />
-
-        <svg
-            x={width - 38}
-            y={180}
-            width={22}
-            height={22}
-            viewBox="0 0 24 24"
-            fill="gray"
-            stroke="black"
-            stroke-width="1"
-        >
-            <path
-                d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"
+            <!-- IDP / Other bars -->
+            <line
+                x1="150"
+                y1="60"
+                x2="150"
+                y2="70"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
             />
-        </svg>
+            <text
+                x="150"
+                y="85"
+                font-size="12"
+                font-family="Montserrat"
+                font-weight="500"
+                text-anchor="end">IDP</text
+            >
+
+            <line
+                x1="170"
+                y1="60"
+                x2="170"
+                y2="70"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
+            />
+            <text
+                x="165"
+                y="80"
+                font-size="12"
+                font-family="Montserrat"
+                font-weight="500"
+                alignment-baseline="middle"
+                text-anchor="start">Other</text
+            >
+
+            <!-- Parties -->
+            <text
+                x="120"
+                y="20"
+                font-size="12"
+                font-family="Montserrat"
+                font-weight="500"
+                alignment-baseline="middle"
+                text-anchor="end">Opposition</text
+            >
+            <line
+                x1="125"
+                y1="20"
+                x2="135"
+                y2="20"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
+            />
+
+            <text
+                x="120"
+                y="40"
+                font-size="12"
+                font-family="Montserrat"
+                font-weight="500"
+                alignment-baseline="middle"
+                text-anchor="end">Government</text
+            >
+            <line
+                x1="125"
+                y1="40"
+                x2="135"
+                y2="40"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
+            />
+        {:else}
+            <!-- Compact default legend -->
+            <rect
+                x="170"
+                y="20"
+                width="6"
+                height="60"
+                fill="#a6a6a6"
+                opacity="0.3"
+            />
+            <rect
+                x="170"
+                y="40"
+                width="6"
+                height="40"
+                fill="black"
+                opacity="0.7"
+            />
+            <circle cx="173" cy="35" r="5" fill="#808080" stroke="black" />
+            <line
+                x1="150"
+                y1="20"
+                x2="170"
+                y2="20"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
+            />
+
+            {#if elections_check}
+                <text
+                    x="145"
+                    y="20"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Soon</text
+                >
+                <text
+                    x="145"
+                    y="80"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Never</text
+                >
+            {:else if current_mean == "Sec_Gunshots_Now_N"}
+                <text
+                    x="145"
+                    y="20"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Every Night</text
+                >
+                <text
+                    x="145"
+                    y="80"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Never</text
+                >
+            {:else}
+                <text
+                    x="145"
+                    y="20"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Safe</text
+                >
+                <text
+                    x="145"
+                    y="80"
+                    font-size="12"
+                    font-family="Montserrat"
+                    font-weight="500"
+                    alignment-baseline="middle"
+                    text-anchor="end">Unsafe</text
+                >
+            {/if}
+
+            <line
+                x1="150"
+                y1="80"
+                x2="170"
+                y2="80"
+                stroke="black"
+                stroke-dasharray="4 2"
+                stroke-width="0.5"
+            />
+        {/if}
+    </svg>
+</div>
+<div class="left_legend">
+    <svg width="200" height="200">
+        <!-- White -->
+        <rect
+            x="30"
+            y="30"
+            rx="3"
+            width="20"
+            height="20"
+            fill="white"
+            stroke="black"
+        />
         <line
-            x1={width - 40}
-            y1="170"
-            x2={width - 55}
-            y2="170"
+            x1="55"
+            y1="37.5"
+            x2="65"
+            y2="37.5"
             stroke="black"
             stroke-dasharray="4 2"
             stroke-width="0.5"
         />
         <text
-            x={width - 60}
-            y={170}
+            x="70"
+            y="40"
             font-size="12"
             font-family="Montserrat"
             font-weight="500"
             alignment-baseline="middle"
-            text-anchor="end"
+            text-anchor="start">POC</text
         >
-            Safe
-        </text>
 
+        <!-- Gray -->
+        <rect
+            x="30"
+            y="60"
+            rx="3"
+            width="20"
+            height="20"
+            fill="gray"
+            stroke="black"
+        />
         <line
-            x1={width - 40}
-            y1="240"
-            x2={width - 55}
-            y2="240"
+            x1="55"
+            y1="67.5"
+            x2="65"
+            y2="67.5"
             stroke="black"
             stroke-dasharray="4 2"
             stroke-width="0.5"
         />
         <text
-            x={width - 60}
-            y={240}
+            x="70"
+            y="70"
             font-size="12"
             font-family="Montserrat"
             font-weight="500"
             alignment-baseline="middle"
-            text-anchor="end"
+            text-anchor="start">IDP</text
         >
-            Unsafe
-        </text>
-    {/if}
-</svg>
 
-<!-- label at end of line -->
-<!-- <text
-    x={margin.left + i * 10 + 35}
-    y={height - 70 - h}
-    font-size="12"
-    font-family="Montserrat"
-    font-weight="500"
-    alignment-baseline="middle"
->
-    {spikeLabels[i]}
-</text> -->
+        <!-- Black -->
+        <rect
+            x="30"
+            y="90"
+            rx="3"
+            width="20"
+            height="20"
+            fill="black"
+            stroke="black"
+        />
+        <line
+            x1="55"
+            y1="97.5"
+            x2="65"
+            y2="97.5"
+            stroke="black"
+            stroke-dasharray="4 2"
+            stroke-width="0.5"
+        />
+        <text
+            x="70"
+            y="100"
+            font-size="12"
+            font-family="Montserrat"
+            font-weight="500"
+            alignment-baseline="middle"
+            text-anchor="start">Other</text
+        >
+    </svg>
+</div>
+
+<style>
+    .right_legend {
+        position: absolute;
+        top: 200px;
+        right: 5px;
+        transform-origin: top right;
+    }
+
+    @media (max-width: 768px) {
+        .right_legend {
+            top: 50px;
+            transform: scale(0.8);
+        }
+    }
+
+    .left_legend {
+        position: absolute;
+        top: 200px;
+        left: -5px;
+    }
+
+    @media (max-width: 768px) {
+        .left_legend {
+            top: 50px;
+            transform: scale(0.8);
+            transform-origin: top left;
+        }
+    }
+</style>
