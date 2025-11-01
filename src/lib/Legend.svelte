@@ -350,7 +350,7 @@
 <style>
     .right_legend {
         position: absolute;
-        top: 200px;
+        top: 120px;
         right: 5px;
         transform-origin: top right;
     }
@@ -364,7 +364,7 @@
 
     .left_legend {
         position: absolute;
-        top: 200px;
+        top: 150px;
         left: -5px;
     }
 

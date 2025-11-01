@@ -196,8 +196,6 @@
             fill="white"
             rx="2"
             opacity="0"
-            cursor="pointer"
-            on:click={() => handleBarsClick(d[0])}
         />
 
     </g>

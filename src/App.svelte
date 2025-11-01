@@ -114,25 +114,35 @@
   let current_mean = "overall_sec_mean_score";
   $: if (survey_data) {
     // group by locations
-    const pocOrder = ["POC", "IDP", "Other"];
-    location_groups = d3
-      .groups(
-        survey_data,
-        (d) => d.ADM2,
-        (d) => d.poc,
-      )
-      .map(([adm2, pocGroups]) => [
-        adm2,
-        pocGroups.sort(
-          (a, b) => pocOrder.indexOf(a[0]) - pocOrder.indexOf(b[0]),
-        ),
-      ]);
+    location_groups = d3.groups(survey_data, (d) => d.ADM2);
 
-    location_groups = location_groups.filter((d) => d[0] != "Yirol East");
+    location_groups = location_groups
+      .filter(([adm2]) => adm2 !== "Yirol East")
+      .map(([adm2, items]) => {
+        // Separate POC/IDP vs Other
+        const pocIdpItems = items.filter(
+          (d) => d.poc === "POC" || d.poc === "IDP",
+        );
+        const otherItems = items.filter((d) => d.poc === "Other");
+
+        const groups = [];
+
+        // Combined POC + IDP
+        if (pocIdpItems.length) {
+          groups.push(["IDP", pocIdpItems]);
+        }
+
+        // Keep Other as is
+        if (otherItems.length) {
+          groups.push(["Other", otherItems]);
+        }
+
+        return [adm2, groups];
+      });
 
     // create objects with location, overall mean and name
     aggregatedLocations = location_groups.flatMap(([adm2, pocGroups]) => {
-      const n = pocGroups.length; // number of subgroups
+      const n = pocGroups.length; // number of subgroups (now 1–2 per location)
 
       return pocGroups.map(([poc, items], i) => {
         const overall_scores = items
@@ -150,9 +160,10 @@
         const xOffset = (i - (n - 1) / 2) * spacing;
         const x = coords?.[0] + xOffset;
         const y = coords?.[1]; // same vertical position
+
         return {
           adm2,
-          poc,
+          poc, // now either "IDP" (combined) or "Other"
           env,
           x,
           y,
@@ -160,6 +171,7 @@
         };
       });
     });
+
     aggregatedLocations.sort((a, b) => b.meanScore - a.meanScore);
 
     const electionsMap = {
@@ -201,7 +213,7 @@
     });
 
     elections = elections.filter(
-      (d) => d.poc !== "POC" && d.adm2 !== "Yirol West",
+      (d) => d.poc !== "POC" && d.adm2 !== "Yirol East",
     );
     elections.sort((a, b) => b.meanScore - a.meanScore);
 
@@ -214,7 +226,7 @@
     indy_locs = d3.groups(projected_locations, (d) => d.ADM2);
     indy_locs = indy_locs.filter((d) => d[0] != "Yirol East");
 
-    //party politics data
+    // Party politics data
     test = location_groups.flatMap(([adm2, pocGroups]) => {
       const n = pocGroups.length; // number of subgroups (POC, IDP, Other)
 
@@ -231,32 +243,32 @@
         const y = coords?.[1];
 
         // --- Party_Vision counts ---
-        const visionCounts = d3.rollup(
-          items.filter((d) => d.Party_Vision && d.Party_Vision.trim() !== ""),
+        const validItems = items.filter(
+          (d) =>
+            d.Party_Vision &&
+            d.Party_Vision.trim() !== "" &&
+            d.Party_Vision !== "None of the parties" &&
+            d.Party_Vision !== "Not answered",
+        );
+
+        // Collapse all non-government parties into "Opposition"
+        const groupedCounts = d3.rollup(
+          validItems,
           (arr) => arr.length,
-          (d) => d.Party_Vision,
+          (d) =>
+            d.Party_Vision ===
+            "Sudan People’s Liberation Movement In Government (SPLM-IG)"
+              ? "Government"
+              : "Opposition",
         );
 
-        const sortedVisionCounts = Array.from(
-          visionCounts,
+        const filteredVisionCounts = Array.from(
+          groupedCounts,
           ([Party_Vision, count]) => ({ Party_Vision, count }),
-        ).sort((a, b) => d3.descending(a.count, b.count));
-
-        // Keep only the two main parties
-        const mainParties = [
-          "Sudan People’s Liberation Movement In Government (SPLM-IG)",
-          "Sudan People’s Liberation Movement In Opposition (SPLM-IO)",
-        ];
-
-        const filteredVisionCounts = sortedVisionCounts.filter((d) =>
-          mainParties.includes(d.Party_Vision),
-        );
-
-        // Ensure order
-        filteredVisionCounts.sort(
+        ).sort(
           (a, b) =>
-            mainParties.indexOf(a.Party_Vision) -
-            mainParties.indexOf(b.Party_Vision),
+            ["Government", "Opposition"].indexOf(a.Party_Vision) -
+            ["Government", "Opposition"].indexOf(b.Party_Vision),
         );
 
         return {
@@ -408,9 +420,7 @@
   }
 
   const options = [
-    { value: "poc_idp", label: "POC+IDP" },
-    { value: "poc", label: "POC" },
-    { value: "idp", label: "IDP" },
+    { value: "poc_idp", label: "IDP" },
     { value: "oth", label: "Other" },
     { value: "all", label: "All" },
   ];
@@ -585,6 +595,8 @@
             {elections}
             {colorScale}
             {indy_locs}
+            {aggregatedLocations}
+            {height}
             on:barClick={handleBarClick}
           />
         {:else if current_mean == "Sec_Gunshots_Now_N"}

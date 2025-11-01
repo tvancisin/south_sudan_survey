@@ -21,17 +21,20 @@
     {#each regions_data as feature}
         <path
             d={pathGenerator(feature)}
-            fill="white"
+            fill={feature.properties.ADMIN == "Pibor" ||
+            feature.properties.ADMIN == "Ruweng"
+                ? "#bfbfbf"
+                : "white"}
             stroke="gray"
-            opacity="0.2"
+            opacity="0.4"
             filter="url(#shadow)"
         />
     {/each}
     {#each disputed_data as feature}
         <path
             d={pathGenerator(feature)}
-            fill="gray"
-            fill-opacity="0.2"
+            fill="#666666"
+            fill-opacity="0.6"
             stroke="gray"
             opacity="0.2"
             filter="url(#shadow)"

@@ -28,17 +28,20 @@
 
     // Assign direction per POC type
     const direction = {
-        POC: 1,
         IDP: -1,
         Other: 1,
     };
 
-    function handleBarsClick(value) {
-        console.log("here", value);
+    let just_one = [];
+    let selectedAdm2 = null;
 
-        // do something local if needed...
-        // then dispatch event with details
-        dispatch("barClick", { value });
+    function handleBarsClick(value) {
+        selectedAdm2 = value; // store the selection
+    }
+
+    // Automatically recompute just_one when aggregatedLocations or selectedAdm2 change
+    $: if (aggregatedLocations && selectedAdm2) {
+        just_one = aggregatedLocations.filter((d) => d.adm2 === selectedAdm2);
     }
 </script>
 
@@ -58,9 +61,9 @@
             })`}
         >
             <rect
-                x={-(d[0].length * 3 + 4)}
+                x={-(d[0].length * 3 + 10)}
                 y="-67"
-                width={60}
+                width={65}
                 height="60"
                 fill="white"
                 opacity="0.5"
@@ -81,7 +84,7 @@
                             )
                           ? 20
                           : 0) +
-                    (direction[d.poc] === 1 ? -8 : -scale(party.count))}
+                    (direction[d.poc] === 1 ? -5 : -scale(party.count))}
                 y={d.y -
                     25 -
                     i * 27 +
@@ -137,9 +140,9 @@
             <!-- Background rect centered on 0,0 -->
             <rect
                 x={-(d[0].length * 3 + 4)}
-                y="-7"
+                y="-65"
                 width={d[0].length * 6 + 8}
-                height="14"
+                height="60"
                 fill="white"
                 rx="2"
                 opacity="0"
@@ -149,3 +152,95 @@
         </g>
     {/if}
 {/each}
+
+{#if just_one && just_one.length}
+    <!-- Compute adjusted x and y positions using same logic as your g transforms -->
+    {@const adjustedPositions = just_one.map((d) => ({
+        x:
+            d.x +
+            (d.adm2 === "Yirol East"
+                ? 40
+                : ["Gogrial West", "Bor South", "Yirol West"].includes(d.adm2)
+                  ? 20
+                  : 0),
+        y:
+            d.y -
+            lineHeight * 2 +
+            10 +
+            (["Yirol East", "Gogrial West"].includes(d.adm2) ? -10 : 0) +
+            (["Wau", "Juba", "Renk"].includes(d.adm2) ? 30 : 0),
+    }))}
+
+    <!-- Background rectangle positioned behind the chart -->
+    <rect
+        x={Math.min(...adjustedPositions.map((d) => d.x)) - 20}
+        y={Math.min(...adjustedPositions.map((d) => d.y)) - 10}
+        width={Math.max(...adjustedPositions.map((d) => d.x)) -
+            Math.min(...adjustedPositions.map((d) => d.x)) +
+            40}
+        height="82"
+        fill="white"
+        opacity="0.8"
+    />
+
+    <!-- Foreground chart elements -->
+    {#each just_one as d}
+        {#if d.x && d.y && d.meanScore != null}
+            <g
+                transform={`translate(
+                    ${
+                        d.x +
+                        (d.adm2 === "Yirol East"
+                            ? 40
+                            : [
+                                    "Gogrial West",
+                                    "Bor South",
+                                    "Yirol West",
+                                ].includes(d.adm2)
+                              ? 20
+                              : 0)
+                    },
+                    ${
+                        d.y -
+                        lineHeight * 2 +
+                        10 +
+                        (["Yirol East", "Gogrial West"].includes(d.adm2)
+                            ? -10
+                            : 0) +
+                        (["Wau", "Juba", "Renk"].includes(d.adm2) ? 30 : 0)
+                    }
+                )`}
+            >
+                <line
+                    x1="-10"
+                    y1={lineHeight}
+                    x2="10"
+                    y2={lineHeight}
+                    stroke="gray"
+                    stroke-width="1"
+                />
+                <rect
+                    x="0"
+                    y="0"
+                    width="3"
+                    height={lineHeight}
+                    fill="#cccccc"
+                />
+                <rect
+                    x="0"
+                    y={getCircleY(d.meanScore)}
+                    width="3"
+                    height={lineHeight - getCircleY(d.meanScore)}
+                    fill="black"
+                />
+                <circle
+                    cx="1.5"
+                    cy={getCircleY(d.meanScore)}
+                    r="4"
+                    stroke="black"
+                    fill={colorScale(d.poc)}
+                />
+            </g>
+        {/if}
+    {/each}
+{/if}
