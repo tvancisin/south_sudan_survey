@@ -285,7 +285,7 @@
     } else {
       // small screens
       scaleFactor = 6.5; // adjust as needed
-      y_center = 9;
+      y_center = 8;
     }
 
     return d3
