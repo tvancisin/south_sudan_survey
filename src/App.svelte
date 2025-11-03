@@ -34,6 +34,12 @@
     axisGroup,
     isListVisible = false,
     header = "Overall Safety",
+    current_mean = "overall_sec_mean_score",
+    selectedEnv = "all",
+    selectedTopic = "",
+    menuOpen = false,
+    menuEnvOpen = false,
+    isMobile = false,
     test,
     csv_path = ["./data/ssd_surveys.csv"],
     geojson_path = [
@@ -43,21 +49,6 @@
       "./data/regions.json",
     ],
     margin = { top: 30, bottom: 30, left: 30, right: 30 };
-
-  // Bound values for dropdowns
-  let selectedEnv = "all";
-  let selectedTopic = "";
-
-  let menuOpen = false;
-  let menuEnvOpen = false;
-  let isMobile = false;
-
-  function toggleMenu() {
-    menuOpen = !menuOpen;
-  }
-  function toggleEnvMenu() {
-    menuEnvOpen = !menuEnvOpen;
-  }
 
   // detect mobile / screen resize
   function updateScreenSize() {
@@ -71,7 +62,7 @@
       survey_data = csv[0];
       default_survey_data = csv[0];
 
-      // prepare timeline
+      // timeline
       let timeline = d3.groups(survey_data, (d) => d.Wave);
       wavePeriods = timeline.map(([waveName, items]) => {
         const first = items[0];
@@ -111,7 +102,6 @@
   });
 
   // once loaded, prepare data
-  let current_mean = "overall_sec_mean_score";
   $: if (survey_data) {
     // group by locations
     location_groups = d3.groups(survey_data, (d) => d.ADM2);
@@ -316,7 +306,7 @@
     .range([120, 2]); // heights from 120px (low values) to 10px (high values)
 
   // Color scale (optional)
-  const colorScale = d3
+  let colorScale = d3
     .scaleOrdinal()
     .domain(["POC", "IDP", "Other"]) // list all possible values
     .range(["white", "#808080", "black"]); // or any colors you like
@@ -430,6 +420,7 @@
 
   let map_shrink = false;
   let keep_width;
+
   function handleBarClick(event) {
     map_shrink = true;
     keep_width = width;
@@ -443,6 +434,13 @@
   function closeList() {
     isListVisible = false;
     width = keep_width;
+  }
+
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+  }
+  function toggleEnvMenu() {
+    menuEnvOpen = !menuEnvOpen;
   }
 </script>
 
@@ -555,16 +553,7 @@
       on:barClick={closeList}
     />
   {/if}
-  <Legend
-    {heightScale}
-    {margin}
-    {height}
-    {width}
-    {current_mean}
-    {spike}
-    {bars}
-    {elections_check}
-  />
+  <Legend {current_mean} {bars} {elections_check} />
 
   <div class="map" bind:clientWidth={width} bind:clientHeight={height}>
     <svg {width} {height}>
@@ -575,8 +564,6 @@
           {disputed_data}
           {regions_data}
           {pathGenerator}
-          {width}
-          {map_shrink}
         />
       {/if}
 

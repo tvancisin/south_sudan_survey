@@ -136,7 +136,7 @@
             >
                 {d[0]}
             </text>
-            />
+            
             <!-- Background rect centered on 0,0 -->
             <rect
                 x={-(d[0].length * 3 + 4)}

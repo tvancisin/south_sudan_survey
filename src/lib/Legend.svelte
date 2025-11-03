@@ -1,13 +1,6 @@
 <script>
     import * as d3 from "d3";
-    export let heightScale,
-        margin,
-        height,
-        width,
-        current_mean,
-        spike,
-        bars,
-        elections_check;
+    export let current_mean, bars, elections_check;
 
     const spikeLabels = [
         "Very Unsafe",
@@ -258,35 +251,6 @@
 </div>
 <div class="left_legend">
     <svg width="200" height="200">
-        <!-- White -->
-        <!-- <rect
-            x="30"
-            y="30"
-            rx="3"
-            width="20"
-            height="20"
-            fill="white"
-            stroke="black"
-        />
-        <line
-            x1="55"
-            y1="37.5"
-            x2="65"
-            y2="37.5"
-            stroke="black"
-            stroke-dasharray="4 2"
-            stroke-width="0.5"
-        />
-        <text
-            x="70"
-            y="40"
-            font-size="12"
-            font-family="Montserrat"
-            font-weight="500"
-            alignment-baseline="middle"
-            text-anchor="start">POC</text -->
-        >
-
         <!-- Gray -->
         <rect
             x="30"

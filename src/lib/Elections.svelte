@@ -19,11 +19,8 @@
     }
 
     function handleBarsClick(value) {
-        console.log("here", value);
-
-        // do something local if needed...
         // then dispatch event with details
-        dispatch("barClick", { value });
+        // dispatch("barClick", { value });
     }
     let showElections = true;
 
