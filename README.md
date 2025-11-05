@@ -1,5 +1,7 @@
 ## South Sudan Safety Perception
 
+<img src="ssudan.jpg"/>
+
 This is a [`Svelte`] project scaffolded with [`Vite`]. It includes a deployment setup using [`gh-pages`] to publish the built site to GitHub Pages.
 
 ### Prerequisites
