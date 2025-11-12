@@ -388,6 +388,7 @@
 
   function handleElectionsClick() {
     activeButton = "elections";
+    current_mean = "overall_sec_mean_score";
     bars = false;
     elections_check = true;
     header = "Wanting an Election";
